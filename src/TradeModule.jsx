@@ -148,12 +148,26 @@ function OrdersPage({ onDetail, showToast }) {
   </>;
 }
 
+const formatMoney = value => Number(value).toFixed(2).replace(/\.00$/, "");
+
+function getOrderPricing(order) {
+  const quantity = order.quantity || 1;
+  const productTotal = Number((order.price * quantity).toFixed(2));
+  const subtotal = Number(order.subtotal ?? order.total);
+  const freight = Number(order.freight ?? 0);
+  const couponDiscount = Number(order.couponDiscount ?? 0);
+  const discountTotal = Number((order.discountTotal ?? (productTotal + freight - couponDiscount - Number(order.total))).toFixed(2));
+  const orderTotal = Number((productTotal + freight - discountTotal - couponDiscount).toFixed(2));
+  return { quantity, productTotal, subtotal, freight, discountTotal, couponDiscount, orderTotal };
+}
+
 function OrderDetail({ order, onBack, showToast }) {
   const [addressExpanded, setAddressExpanded] = useState(false);
+  const pricing = getOrderPricing(order);
   return <><div className="detail-toolbar"><button className="trade-secondary" onClick={onBack}>返回订单列表</button></div>
     <section className="trade-detail-card"><h2>订单信息</h2><div className="order-info-grid"><Detail label="订单编号" value={order.id} /><Detail label="订单状态" value={order.status} /><Detail label="买家" value={order.buyer} /><Detail label="下单时间" value={order.time} /><Detail label="交易单号" value="DEMO-TRANS-20260811" /><Detail label="支付方式" value="微信支付" /><Detail label="支付时间" value={order.status === "待付款" ? "—" : order.time} /><Detail label="门店" value={`${order.store}（ID: DEMO1522）`} /><Detail label="配送方式" value={<span className="delivery-tag">{order.delivery}</span>} /><Detail label="卖家备注" value={<>{order.note}　<button className="trade-link" onClick={() => showToast("请在订单列表中修改备注")}>修改</button></>} /></div></section>
     <section className="trade-detail-card"><h2>收货信息</h2><div className="order-info-grid three"><Detail label="收货人" value={order.receiver} /><Detail label="手机号码" value={order.phone} /><Detail label="收货地址" value={<>{addressExpanded ? `${order.address.replace("***", "演示街道88号")}` : order.address}<button className="trade-link" onClick={() => setAddressExpanded(!addressExpanded)}>{addressExpanded ? "收起" : "展开"}</button></>} /><Detail label="发货时间" value={order.status === "待收货" || order.status === "交易完成" ? order.time : "—"} /></div></section>
-    <section className="trade-detail-card"><h2>订单清单</h2><table className="trade-table detail-product-table"><thead><tr><th>商品名称</th><th>商品编码</th><th>商品类型</th><th>单价/数量</th><th>小计</th></tr></thead><tbody><tr><td><div className="trade-product"><img src={order.image} alt="" /><div><span>{order.product}</span><small>{order.spec}</small></div></div></td><td>DEMO067053</td><td>非处方药</td><td>{order.price} * 1件</td><td className="price-red">{order.total}</td></tr></tbody></table><div className="order-summary"><span>买家留言　无</span><dl><div><dt>商品总价</dt><dd>¥ {order.total}</dd></div><div><dt>订单总额</dt><dd>¥ {order.total}</dd></div><div><dt>运费</dt><dd>¥ 0</dd></div><div className="paid"><dt>订单实付</dt><dd>¥ {order.total}</dd></div></dl></div></section>
+    <section className="trade-detail-card"><h2>订单清单</h2><table className="trade-table detail-product-table"><thead><tr><th>商品名称</th><th>商品编码</th><th>商品类型</th><th>单价/数量</th><th>小计</th></tr></thead><tbody><tr><td><div className="trade-product"><img src={order.image} alt="" /><div><span>{order.product}</span><small>{order.spec}</small></div></div></td><td>DEMO067053</td><td>非处方药</td><td>{formatMoney(order.price)} * {pricing.quantity}件</td><td className="price-red">¥ {formatMoney(pricing.subtotal)}</td></tr></tbody></table><div className="order-summary"><span>买家留言　无</span><dl><div><dt>商品总价</dt><dd>¥ {formatMoney(pricing.productTotal)}</dd></div><div><dt>优惠合计</dt><dd className="discount-value">- ¥ {formatMoney(pricing.discountTotal)}</dd></div><div><dt>优惠券</dt><dd className="discount-value">- ¥ {formatMoney(pricing.couponDiscount)}</dd></div><div><dt>运费</dt><dd>¥ {formatMoney(pricing.freight)}</dd></div><div><dt>订单总额</dt><dd>¥ {formatMoney(pricing.orderTotal)}</dd></div><div className="paid"><dt>订单实付</dt><dd>¥ {formatMoney(pricing.orderTotal)}</dd></div></dl></div></section>
     <section className="trade-detail-card"><h2>其他</h2><div className="order-info-grid four"><Detail label="有物流" value="是" /><Detail label="有退款" value="否" /><Detail label="剩余支付(秒)" value={order.status === "待付款" ? "1260" : "—"} /><Detail label="剩余支付说明" value="—" /><Detail label="可取消自提" value="否" /><Detail label="自提取消窗口过期" value="否" /><Detail label="自提取消截止时间" value="—" /></div></section>
     <section className="trade-detail-card"><h2>订单操作日志</h2><table className="trade-table"><thead><tr><th>操作人</th><th>操作时间</th><th>操作内容</th></tr></thead><tbody><tr><td>演示操作员</td><td>{order.time}</td><td>创建演示订单</td></tr></tbody></table></section>
   </>;

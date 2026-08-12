@@ -6,3 +6,5 @@
 .return-table{min-width:1315px}.return-table th:nth-child(7){width:90px}.return-table th:nth-child(8){width:120px}.return-table th:nth-child(9){width:145px}
 .return-audit-detail{gap:27px}
 .trade-card + .trade-filter-card{margin-top:0}
+.order-summary .discount-value{color:#ef6464}
+.detail-product-table th:last-child,.detail-product-table td:last-child{text-align:center}
