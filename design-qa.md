@@ -54,3 +54,142 @@
 - [x] Check final browser console.
 
 final result: passed
+
+---
+
+# 商品选择弹窗 Design QA
+
+**Comparison target**
+
+- Source visual truth: Browser Comment 1 additional reference attachment, showing the 商品选择 dialog at 1080 × 730 px. The conversation attachment is the source; the app did not expose a local filesystem path for it.
+- Implementation screenshot: in-app Browser capture `multiSelectShot`, showing the default multi-select 商品选择 state at 1390 × 912 CSS px and device scale factor 1. The capture is session evidence rather than a filesystem-backed image.
+- Density normalization: the dialog itself is 1050 × 710 CSS px in both the source and implementation. Comparison used the dialog content region so the different surrounding viewport and admin shell did not create false findings.
+- State: default filters, page 1, 10 items per page, unchecked current-page select-all and row checkboxes, disabled confirm action.
+
+**Evidence**
+
+- Full-view comparison: the user-attached reference and the emitted `finalModalShot` were reviewed together in the active task context.
+- Focused comparison: header/filter controls, fixed table columns, row density, thumbnails, scrollbar, pagination, and footer actions were compared at the shared 1050 × 710 dialog size.
+- Primary interactions tested: keyword search, reset, current-page select all, individual deselection, next-page navigation, cross-page selection persistence, over-nine validation, batch confirm, dialog close, and nine product rows returned to the form.
+- Browser console: checked after the full selection flow; no warnings or errors.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- [P3] The dimmed background retains the 千金健康商城 shell rather than the source system page. This is intentional because the dialog is being added to the existing prototype.
+- [P3] Product thumbnails reuse the prototype's three existing real medicine images instead of copying the source system's product assets, which were not supplied as individual files. Thumbnail size, crop, and table treatment match the reference.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: retained the existing system-font stack and matched the reference's 18 px dialog title, compact 14 px table text, muted placeholders, and 13 px pagination copy.
+- Spacing and layout rhythm: matched the 1050 × 710 dialog, 17 px horizontal inset, compact filters, sticky 47 px table header, 54 px data rows, scrollable table body, 64 px pagination area, and 58 px action footer.
+- Colors and visual tokens: matched the white dialog, gray overlay, pale table header, subtle row dividers, blue primary actions, muted disabled confirm state, and restrained borders.
+- Image quality and asset fidelity: used real project product imagery with `object-fit: contain`; no drawn placeholders, CSS illustrations, or fake raster assets were introduced.
+- Copy and content: matched 商品选择, the category and product keyword controls, 搜索/重置, 本页全选, 选择/商品名称/库存/售价, selection count and limit feedback, total count, pagination, 取消, and 确认.
+
+**Comparison history**
+
+- Initial [P2] finding: product-name cells were rendered as flex table cells, which collapsed the table grid, hid names, and produced oversized row gaps. Fixed by nesting flex wrappers inside normal table cells and assigning stable code, inventory, and price column widths. The post-fix `finalModalShot` shows all names, thumbnails, stock, and prices aligned at reference-like row density.
+- Annotation update: the original radio selection was replaced with checkbox multi-selection. A header checkbox now selects or clears every selectable item on the current page, checked items persist across pages, and confirming returns the entire checked batch. Selecting more than the remaining nine-product allowance shows an explicit error and disables confirmation.
+
+**Implementation checklist**
+
+- [x] Match the reference dialog structure and sizing.
+- [x] Implement category and product-name/code filters.
+- [x] Implement row multi-selection, current-page select all, paging, cancel, and batch confirm.
+- [x] Return confirmed products to the combination-price form.
+- [x] Verify the primary interaction flow and browser console.
+
+final result: passed
+
+---
+
+# 已选组合商品明细表 Design QA
+
+**Comparison target**
+
+- Source visual truth: Browser Comment 1 additional reference attachment, showing selected combination products as a nine-column editable table. The conversation attachment is the source; the app did not expose a local filesystem path for it.
+- Implementation screenshot: in-app Browser capture `finalTableShot`, rendered at 1390 × 912 CSS px and device scale factor 1 after selecting three products.
+- State: three selected products with real thumbnails, product metadata, bordered quantity inputs defaulting to 1, and row delete actions.
+
+**Evidence**
+
+- The source attachment and `finalTableShot` were reviewed together for column order, row density, control placement, borders, thumbnails, and surrounding form alignment.
+- Browser interactions tested: batch-add three products, edit quantity, delete one row, reload, and recreate the final three-row state.
+- Browser console: checked after the final interaction pass; no warnings or errors.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- [P3] Product thumbnails reuse the prototype's existing medicine assets rather than the source system's image set, because the reference images were not supplied as individual assets.
+- [P3] Quantity uses a native number input with hidden spinner controls so it retains keyboard editing while matching the supplied centered, bordered treatment.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: retained the existing compact system-font treatment and aligned header/body hierarchy with the source table.
+- Spacing and layout rhythm: implemented the seven-column table, stable column widths, compact rows, contained thumbnails, centered quantity input, and right-aligned delete action inside the existing responsive form.
+- Colors and visual tokens: reused the project's pale header, subtle borders, blue delete action, and blue input focus state.
+- Copy and content: matched 商品图片、商品编码、商品名称、参考价(元)、商品规格、数量、操作 and 删除; removed 组合单价 and 近效期商品, and updated the helper to “组合商品最多可添加9个”.
+- Responsive behavior: the table remains full-width at the verified desktop viewport and gains horizontal scrolling inside the form at narrower widths without breaking the existing page shell.
+
+**Implementation checklist**
+
+- [x] Replace selected-product tags with an editable detail table.
+- [x] Preserve batch selection and the nine-product maximum.
+- [x] Make quantity and delete actions functional, with quantity defaulting to 1.
+- [x] Center the quantity heading, input control, and input value within the column.
+- [x] Center the 操作 heading and each 删除 action within the final column.
+- [x] Add a required activity-level 组合价格 input between the date fields and product selection.
+- [x] Block saving and show “请输入组合价格” when the price is blank.
+- [x] Verify a clean reload produces product specifications and final table layout.
+- [x] Run production build, Sites packaging tests, and browser console checks.
+
+final result: passed
+
+---
+
+# 新增组合价 Design QA
+
+**Comparison target**
+
+- Source visual truth: the original user-attached “组合购 › 新增组合购” reference plus the latest Browser Comment 1 annotation requesting a required 组合价格 row between the date fields and product selection.
+- Implementation screenshots: in-app Browser captures `finalPriceShot` for the final default form and `priceErrorShot` for the blank-price validation state, emitted from `http://127.0.0.1:4173/`.
+- Implementation viewport: 1390 × 912 CSS px, device scale factor 1. The in-app Browser capped the requested 1920 px width, so comparison used the normalized content region and the focused form crop rather than treating the fluid right-side whitespace as a mismatch.
+- State: default create form with three selected products and an empty 组合价格 input; validation evidence additionally includes completed dates, one selected product, a red invalid field, and “请输入组合价格”.
+
+**Evidence**
+
+- Full-view evidence: the user-attached reference image and the first in-app Browser form capture were reviewed together in the active task context.
+- Focused region evidence: `finalPriceShot` confirms the new row follows the existing 86 px label and 406 px control alignment; `priceErrorShot` confirms the red invalid border and adjacent error copy.
+- Browser interactions tested: list-to-create navigation, title/date/description entry, combination-product selection, blank-price save rejection, clearing the error by entering 29.90, successful save, generated activity number, and saved-row insertion at the top of the list.
+- Browser console: checked after the complete creation flow; no warnings or errors.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- [P3] The project retains the 千金健康商城 brand/sidebar and React icon set rather than copying the source B2C shell; this is intentional because the annotation asks to add the screen to the existing prototype.
+- [P3] The implementation uses “组合价” consistently where the reference says “组合购”, matching the current feature terminology.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: retained the existing system-font stack and matched the reference’s compact 14 px form text, muted helper copy, normal label weight, and 12 px counter.
+- Spacing and layout rhythm: matched the white form panel, left-aligned 86 px label column, 406 px primary controls, 810 px description field, approximately 50 px row rhythm, and compact save placement. The form remains fluid inside the narrower verified viewport.
+- Colors and visual tokens: matched the existing prototype’s blue primary action, white panel, pale page background, gray borders, muted helper text, and restrained focus state.
+- Image quality and asset fidelity: the source form contains no raster imagery or custom decorative assets. UI icons use the existing React icon library; no CSS-drawn or placeholder assets were introduced.
+- Copy and content: reproduced the requested title, start/end time, combination-product selection, maximum-nine helper, description counter, save action, and combination-price breadcrumb with terminology adapted to “组合价”.
+
+**Comparison history**
+
+- Initial [P2] finding: the form started about 14 px too far right relative to the reference. Reduced the create-panel left padding from 54 px to 40 px; the post-fix `revisedShot` aligns the label and control column more closely.
+- Initial [P2] finding: native datetime-local controls rendered a browser-specific Chinese placeholder and a right-side calendar icon, unlike the source’s left clock icon and “请选择日期时间” placeholder. Replaced the visible control treatment with a left clock icon, explicit placeholder, and validated `YYYY-MM-DD HH:mm:ss` entry; post-fix evidence is in `revisedShot`.
+- Annotation update: added the activity-level 组合价格 input using the existing form-row sizing and spacing. Blank submission now marks the field invalid and shows “请输入组合价格”; a filled value is persisted in the newly created local activity.
+
+**Implementation checklist**
+
+- [x] Add the list-page “新增组合价” action.
+- [x] Match the reference form hierarchy and density inside the existing shell.
+- [x] Make product selection, validation, save, and list insertion functional.
+- [x] Run the production build and Sites packaging tests.
+- [x] Check the final browser console.
+
+final result: passed
