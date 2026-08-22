@@ -193,3 +193,33 @@ final result: passed
 - [x] Check the final browser console.
 
 final result: passed
+
+---
+
+# Combination price required fields and chronological Toast Design QA
+
+**Comparison target**
+
+- Source visual truth: the current Browser Comment annotations supplied in this task: a red `*` before each required form label and an upper-center error Toast for `结束时间必须晚于开始时间`.
+- Implementation evidence: in-app Browser capture from `http://127.0.0.1:4173/` at 1408 × 912 CSS px, plus the accessible DOM snapshot after a same-value start/end save attempt.
+- State: title and combination price completed; start and end both `2026-08-22 00:00:00`; no combination products are required to reach the chronological check because it runs first.
+
+**Evidence and comparison**
+
+- Full view: the required star appears before 活动标题、开始时间、结束时间、组合价格、组合商品. 组合描述 remains unmarked, matching the supplied reference.
+- Focused state: saving an equal start/end time exposes an `alert` reading `结束时间必须晚于开始时间`; the message is no longer rendered beside 保存.
+- Constraint behavior: the custom start/end pickers keep their date and same-day time boundaries; submission also guards the final serialized timestamps.
+- Browser console: verified after the interaction; no warnings or errors.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+
+**Implementation checklist**
+
+- [x] Mark each required combination-price form label with a red star.
+- [x] Leave the optional description label unmarked.
+- [x] Convert non-chronological start/end validation to the shared upper-center Toast treatment.
+- [x] Verify the final page state and browser console.
+
+final result: passed
