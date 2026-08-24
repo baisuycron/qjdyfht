@@ -57,6 +57,53 @@ final result: passed
 
 ---
 
+# 适用门店弹窗 Design QA
+
+**Comparison target**
+
+- Source visual truth: `C:\Users\ADMINI~1.DES\AppData\Local\Temp\ScreenShot_2026-08-24_145249_806.png`, supplied as the additional reference image in Browser Comment 1.
+- Implementation screenshot: `qa/store-list-modal-implementation.png`.
+- Comparison image: `C:\Users\Administrator.DESKTOP-734BMB4\.codex\visualizations\2026\08\24\01a03280-1c18-7ff0-9e49-b0819468f263\store-list-modal-comparison.png`.
+- Viewport and normalization: source image is 1000 × 684 px; its 960 × 650 px dialog was cropped and compared beside the implementation's 960 × 650 CSS-pixel dialog at device scale factor 1.
+- State: specified-store activity detail with the 适用门店 dialog open, page 1, 20 items per page selected, and close action visible.
+
+**Evidence**
+
+- Full-view comparison: the source and implementation dialog crops were placed side by side in the comparison image.
+- Focused comparison: title/header, five-column table, multiline first column, row density, total count, page-size control, pagination, jump-page field, and bottom close action.
+- Primary interactions tested: open from 指定门店, change page size, page controls, top-right close, and bottom close.
+- Browser console: checked after the final open state; no errors.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- [P3] The implementation contains only the stores assigned to the selected activity, so the example has two rows and one page instead of the reference's 50 rows and three pages. This is intentional data fidelity, not layout drift.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: matched the existing system-font stack, 18 px semibold title, compact 13–14 px table and pagination copy, single-line headers, and ellipsis treatment.
+- Spacing and layout rhythm: matched the 960 × 650 dialog, 16 px horizontal inset, 60 px header, 48 px table header, 88 px rows, scrollable body, 52 px pagination strip, and 60 px action footer.
+- Colors and visual tokens: matched the dim overlay, white dialog, pale gray table header, subtle row dividers, muted controls, and blue active page.
+- Image quality and asset fidelity: the reference contains no raster assets beyond the captured UI; the implementation uses the existing icon library for close and pagination icons.
+- Copy and content: matched 适用门店、门店、门店名称、门店性质、门店电话、区域、总数、每页条数、前往、页、关闭.
+
+**Comparison history**
+
+- Initial [P1] finding: the generic `.modal` width overrode the custom dialog, producing a 400 px narrow modal with vertically wrapped headers. Fixed with a higher-specificity 960 px dialog rule and reference-matched column tracks.
+- Initial [P2] finding: the dialog lacked the reference pagination and jump-page strip. Added total count, page-size selector, previous/next controls, page numbers, jump field, and separate close footer.
+- Initial [P2] finding: prefixed phone numbers truncated in the allocated column. Switched the prototype values to eight-digit store phone numbers so the column matches the reference without clipping.
+
+**Implementation checklist**
+
+- [x] Match the reference dialog frame and overlay.
+- [x] Match the five-column table and multiline store identity cell.
+- [x] Add scrollable body, total count, pagination, jump-page, and close regions.
+- [x] Verify open/close behavior and browser console.
+
+final result: passed
+
+---
+
 # 商品选择弹窗 Design QA
 
 **Comparison target**
