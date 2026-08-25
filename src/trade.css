@@ -8,3 +8,12 @@
 .trade-card + .trade-filter-card{margin-top:0}
 .order-summary .discount-value{color:#ef6464}
 .detail-product-table th:last-child,.detail-product-table td:last-child{text-align:center}
+.order-summary dl{width:285px}
+.order-summary dl>div{display:grid;grid-template-columns:minmax(0,1fr) 105px 18px;align-items:center}
+.order-summary dl>div dd{grid-column:2;text-align:right;white-space:nowrap}
+.discount-expand-button{grid-column:3;width:18px;height:22px;border:0;background:transparent;color:#9aa1aa;padding:0;display:grid;place-items:center;cursor:pointer}
+.discount-expand-button svg{width:14px;height:14px;transition:transform .18s}
+.discount-expand-button.expanded svg{transform:rotate(180deg)}
+.order-summary dl>div.promotion-discount-row{padding:4px 0;color:#969da6;font-size:13px}
+.promotion-discount-row dt{padding-left:14px}
+.promotion-discount-row dd{color:#969da6}

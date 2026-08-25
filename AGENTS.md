@@ -21,7 +21,9 @@ For the limited-discount list, provide query controls for activity name (fuzzy, 
 
 Calculate limited-discount activity status from the current China Standard Time and the activity interval: before `starttime` is “未开始”, from `starttime` through `endtime` inclusive is “进行中”, and after `endtime` is “已结束”. Do not display a stored status field.
 
-For the combination-price list, use 活动单号 (exact, max 50 characters), 活动名称 (fuzzy, max 100 characters), 活动起止时间, 商品名称 (fuzzy, max 100 characters), and 商品编码 (exact, max 50 characters). The activity-time filter matches activities whose effective period overlaps the selected range. Do not provide a last-modified-time query; blank fields mean all combination-price activities.
+For the combination-price list, use 活动单号 (exact, max 50 characters), 活动名称 (fuzzy, max 100 characters), 活动时间, 商品名称 (fuzzy, max 100 characters), and 商品编码 (exact, max 50 characters). The activity-time filter matches activities whose effective period overlaps the selected range. Do not provide a last-modified-time query; blank fields mean all combination-price activities.
+
+Across the combination-price and ERP promotion lists, place 活动时间 first in the query bar. Its left edge follows the combination-price filter reference and aligns with the list-table content below.
 
 For the combination-price list, label the first two columns 活动单号 and 活动名称. Do not show 规格/单位, 场景, 组成商品数, or 厂家; show 活动状态 computed from the current China Standard Time instead. Display activity time as 年月日时分秒, and retain the view action.
 
@@ -64,3 +66,5 @@ When saved start/end values are not chronological, show the `结束时间必须�
 For combination-price activity actions, derive the normal status from the current China Standard Time and the activity interval, with a manual-termination marker overriding the interval to `已结束`. 未开始 activities support 查看、编辑和终止; 编辑 opens the same full form as 新增组合价 with every field prefilled and editable. 进行中 activities support 查看 and 终止. Both termination paths require confirmation, record the termination time, immediately change the derived status to 已结束, and prevent further mall participation without overwriting the planned end time. 已结束 activities support 查看 only. Keep at least one naturally ended sample activity in the prototype data.
 
 The combination-price 查看 page reuses the 新增组合价 field structure and selected-product table for 活动名称, 开始时间, 结束时间, 组合价格, 组合商品, and 组合描述. It is a read-only form: no product picker, quantity edits, deletion, or save action. The 编辑 page reuses the same components in editable mode so create, edit, and view do not drift into separate field definitions.
+
+后台订单详情的“优惠合计”需要展示该订单实际参与的促销优惠明细，交互参考商城购物车金额明细：有促销明细时支持展开和收起，明细逐项展示促销名称及优惠金额；所有汇总金额和明细金额共用同一右边界，并保留最右侧展开箭头列。优惠券仍作为独立汇总项展示，不并入促销明细。
