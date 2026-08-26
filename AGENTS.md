@@ -13,19 +13,29 @@ For the ERP promotion lists, provide activity name (fuzzy, max 100 characters), 
 
 Keep ERP promotion list columns focused on activity identification, time, real-time activity status, store scope, and actions; do not show 活动类型, 优惠规则, or 商品明细 in these lists. For the combination-price list, do not show the 营销类型 column. Keep those rule/type details available on their respective detail pages.
 
+ERP promotion lists also display `最后修改时间` between `适用门店` and `操作`, using the same datetime format as the limited-discount list. This is distinct from the single list-level `活动同步时间` beside the sync control.
+
+The ERP list's `最后修改时间` heading and its full datetime values are left-aligned.
+
 Do not show 商品明细 in any ERP promotion list.
 
 Show an 活动状态 column between 活动时间 and 适用门店 in every ERP promotion list. Calculate it from the current China Standard Time and the activity interval: before starttime is 未开始, from starttime through endtime inclusive is 进行中, and after endtime is 已结束. Do not use a stored status field.
+
+For ERP promotion lists, show only one 活动同步时间: place it to the left of the 同步ERP活动 action in the list card's upper-right whitespace. Do not render it as a repeated table column; a completed sync updates that single displayed timestamp.
+
+The 同步ERP活动 control keeps its idle width while disabled and labelled “同步中...”; do not let its width contract during the sync state.
+
+Apply the same single 活动同步时间 and 同步ERP活动 operation-bar pattern to the limited-discount list: show the timestamp once, immediately left of the control, and never as a repeated table column. In ERP promotion and limited-discount detail cards, omit the secondary “ERP 活动规则” or “活动规则” heading below “基本信息”.
 
 For the limited-discount list, provide query controls for activity name (fuzzy, max 100 characters), activity number (exact, max 50 characters), and discount method (single-select: all, discount rate, promotional price, price reduction). Label this field and its table column “优惠方式”.
 
 Calculate limited-discount activity status from the current China Standard Time and the activity interval: before `starttime` is “未开始”, from `starttime` through `endtime` inclusive is “进行中”, and after `endtime` is “已结束”. Do not display a stored status field.
 
-For the combination-price list, use 活动单号 (exact, max 50 characters), 活动名称 (fuzzy, max 100 characters), 活动时间, 商品名称 (fuzzy, max 100 characters), and 商品编码 (exact, max 50 characters). The activity-time filter matches activities whose effective period overlaps the selected range. Do not provide a last-modified-time query; blank fields mean all combination-price activities.
+For the combination-price list, use 活动名称 (fuzzy, max 100 characters), 活动时间, 商品名称 (fuzzy, max 100 characters), and 商品编码 (exact, max 50 characters). Do not expose 活动单号 as a query condition. The activity-time filter matches activities whose effective period overlaps the selected range. Do not provide a last-modified-time query; blank fields mean all combination-price activities.
 
 Across the combination-price and ERP promotion lists, place 活动时间 first in the query bar. Its left edge follows the combination-price filter reference and aligns with the list-table content below.
 
-For the combination-price list, label the first two columns 活动单号 and 活动名称. Do not show 规格/单位, 场景, 组成商品数, or 厂家; show 活动状态 computed from the current China Standard Time instead. Display activity time as 年月日时分秒, and retain the view action.
+For the combination-price list, start with 活动名称; do not show 活动单号, 规格/单位, 场景, 组成商品数, or 厂家. Show 活动状态 computed from the current China Standard Time instead. Display activity time as 年月日时分秒, and retain the view action.
 
 The combination-price list provides a 新增组合价 action inside the lower white list/table card, above the table. It opens an interactive local-prototype form for activity title, start/end time, a required activity-level 组合价格, up to nine combination products, a 500-character description, and save; the form does not distinguish a main product. Saving with a blank 组合价格 must show an explicit error and must not create the activity. Adding combination products opens a large 商品选择 dialog with a two-level category cascader and product-name/code filters, 最新售价, checkbox multi-selection, current-page select all, selection preserved across pages, pagination, cancel, and confirm. The 14 px category trigger reads “请选择商品分类”; opening it reveals primary categories on the left and the hovered category's secondary choices on the right. The product-name/code control is also 14 px, and the first table heading is “商品编码”. Confirmation adds every checked product to the form, but the nine-product limit must remain enforced with an explicit over-limit message. Selected combination products are displayed as a detail table with image, code, name, 最新售价, specification, a bordered centered quantity input defaulting to 1, and delete action. Center the quantity heading and input, and center the 操作 heading and every 删除 action within that column. Label the helper text “组合商品最多可添加9个”. Do not show combination unit price or near-expiry fields in this selected-product table; the edited quantity must be preserved when saving. This explicit prototype decision supersedes the earlier readonly-only boundary for combination price; do not imply that local creation is supported by the ERP API until a write contract is confirmed.
 
