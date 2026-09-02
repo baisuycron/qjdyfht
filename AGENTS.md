@@ -86,3 +86,7 @@ For combination-price activity actions, derive the normal status from the curren
 The combination-price 查看 page reuses the 新增组合价 field structure and selected-product table for 活动名称, 开始时间, 结束时间, 组合价格, 组合商品, and 组合描述. It is a read-only form: no product picker, quantity edits, deletion, or save action. The 编辑 page reuses the same components in editable mode so create, edit, and view do not drift into separate field definitions.
 
 后台订单详情的“优惠合计”需要展示该订单实际参与的促销优惠明细，交互参考商城购物车金额明细：有促销明细时支持展开和收起，明细逐项展示促销名称及优惠金额；所有汇总金额和明细金额共用同一右边界，并保留最右侧展开箭头列。优惠券仍作为独立汇总项展示，不并入促销明细。
+
+在保留 ERP 满减满赠类三个独立生产入口的同时，另提供一个只读“四合一营销活动接口”演示模型。该模型按主活动最后修改时间的左闭右开区间查询，支持页码和每页活动数，并用“满减满赠”“满额+XX元换购”“买X送Y”“X元Y件（任选）”四个页签查看同一接口响应；列表保持活动识别、时间、实时状态、门店、最后修改时间和操作列，详情完整展示条件商品与赠送、换购或候选商品明细。
+
+四合一促销试算模型作为独立接口演示入口保留，支持四种活动类型、具体活动选择、订单日期、门店、金额、数量以及条件商品金额、数量和毛利率输入；试算结果逐项展示门槛通过状态、重复优惠次数和优惠结果。页面必须明确标注为“演示口径”，不得把尚未确认的重复次数、毛利率和多条件计算方式描述为生产结算规则。

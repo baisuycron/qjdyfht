@@ -15,6 +15,7 @@ import {
   FiMapPin,
   FiMenu,
   FiPackage,
+  FiPercent,
   FiPlus,
   FiRefreshCw,
   FiSearch,
@@ -87,7 +88,7 @@ function TrendChart({ range }) {
 }
 
 function MarketingGuide({ setView }) {
-  return <PageFrame crumb="营销" section="marketing" setView={setView}><section className="marketing-guide"><div className="guide-section"><h2>平台促销</h2><div className="guide-cards platform-promotion-cards"><button onClick={() => setView("coupon")}><span className="guide-icon red"><FiTag /></span><div><b>优惠券</b><p>向客户发放优惠劵</p></div></button><button onClick={() => setView("ad")}><span className="guide-icon orange"><FiGift /></span><div><b>弹窗广告</b><p>设置首页弹窗广告</p></div></button><button onClick={() => setView(["erpPromotion", "满减满赠"])}><span className="guide-icon purple"><FiShoppingBag /></span><div><b>满减满赠</b><p>满额减现金或赠送指定商品</p></div></button><button onClick={() => setView(["erpPromotion", "满额+XX元换购"])}><span className="guide-icon amber"><FiGift /></span><div><b>满额换购</b><p>达到金额门槛后加价换购商品</p></div></button><button onClick={() => setView(["erpPromotion", "买X送Y"])}><span className="guide-icon green"><FiPackage /></span><div><b>买X送Y</b><p>购买指定数量后赠送商品</p></div></button><button onClick={() => setView(["storePromotion", "限时折扣"])}><span className="guide-icon teal"><FiClock /></span><div><b>限时折扣</b><p>查看门店商品的限时优惠</p></div></button><button onClick={() => setView("combinationPrice")}><span className="guide-icon indigo"><FiBox /></span><div><b>组合价</b><p>组合商品活动</p></div></button></div></div></section></PageFrame>;
+  return <PageFrame crumb="营销" section="marketing" setView={setView}><section className="marketing-guide"><div className="guide-section"><h2>平台促销</h2><div className="guide-cards platform-promotion-cards"><button onClick={() => setView("coupon")}><span className="guide-icon red"><FiTag /></span><div><b>优惠券</b><p>向客户发放优惠劵</p></div></button><button onClick={() => setView("ad")}><span className="guide-icon orange"><FiGift /></span><div><b>弹窗广告</b><p>设置首页弹窗广告</p></div></button><button onClick={() => setView("memberPriceRules")}><span className="guide-icon blue"><FiPercent /></span><div><b>固定会员价规则</b><p>查看固定折扣并进行规则试算</p></div></button><button onClick={() => setView(["erpPromotion", "满减满赠"])}><span className="guide-icon purple"><FiShoppingBag /></span><div><b>满减满赠</b><p>满额减现金或赠送指定商品</p></div></button><button onClick={() => setView(["erpPromotion", "满额+XX元换购"])}><span className="guide-icon amber"><FiGift /></span><div><b>满额换购</b><p>达到金额门槛后加价换购商品</p></div></button><button onClick={() => setView(["erpPromotion", "买X送Y"])}><span className="guide-icon green"><FiPackage /></span><div><b>买X送Y</b><p>购买指定数量后赠送商品</p></div></button><button onClick={() => setView(["storePromotion", "限时折扣"])}><span className="guide-icon teal"><FiClock /></span><div><b>限时折扣</b><p>查看门店商品的限时优惠</p></div></button><button onClick={() => setView("combinationPrice")}><span className="guide-icon indigo"><FiBox /></span><div><b>组合价</b><p>组合商品活动</p></div></button></div></div><div className="guide-section interface-model-guide"><h2>接口演示</h2><div className="guide-cards"><button onClick={() => setView("fourInOneModel")}><span className="guide-icon slate"><FiClipboard /></span><div><b>四合一营销活动接口</b><p>按最后修改时间查询四类活动响应</p></div></button><button onClick={() => setView("fourInOneCalculator")}><span className="guide-icon cyan"><FiActivity /></span><div><b>四合一促销试算</b><p>输入订单条件，演示优惠命中过程</p></div></button></div></div></section></PageFrame>;
 }
 
 const storeActivities = {
@@ -195,9 +196,103 @@ const storeRecordsForScope = busnos => String(busnos).split(",").map(code => cod
 const weekdayText = value => value.split("").map((enabled, index) => enabled === "1" ? `周${["一", "二", "三", "四", "五", "六", "日"][index]}` : "").filter(Boolean).join("、");
 const discountSummary = activity => activity.distype === 0 ? `${(activity.itemList[0].disrate * 10).toFixed(1)}折` : activity.distype === 1 ? `促销价￥${activity.itemList[0].promprice}` : `立减￥${activity.itemList[0].promprice}`;
 
+const memberPriceDays = [8, 18, 28];
+const memberPriceRules = [
+  { priority: 1, ruleName: "会员价禁用商品不打折", memcardflag: 1, classcode: null, memberDay: null, cardlevels: null, profitRateLower: null, profitRateLowerInclusive: null, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 1 },
+  { priority: 2, ruleName: "指定分类商品统一九八折", memcardflag: null, classcode: "01011301", memberDay: null, cardlevels: [1, 2, 3, 4, 5, 6], profitRateLower: 0.15, profitRateLowerInclusive: false, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 0.98 },
+  { priority: 3, ruleName: "会员日高毛利商品八五折", memcardflag: null, classcode: null, memberDay: true, cardlevels: [1, 2, 3, 4, 5, 6], profitRateLower: 0.15, profitRateLowerInclusive: false, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 0.85 },
+  { priority: 4, ruleName: "会员日普通毛利商品九八折", memcardflag: null, classcode: null, memberDay: true, cardlevels: [1, 2, 3, 4, 5, 6], profitRateLower: 0.02, profitRateLowerInclusive: false, profitRateUpper: 0.15, profitRateUpperInclusive: false, discountRate: 0.98 },
+  { priority: 5, ruleName: "六级会员非会员日八五折", memcardflag: null, classcode: null, memberDay: false, cardlevels: [6], profitRateLower: 0.3, profitRateLowerInclusive: false, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 0.85 },
+  { priority: 6, ruleName: "五级会员非会员日九折", memcardflag: null, classcode: null, memberDay: false, cardlevels: [5], profitRateLower: 0.3, profitRateLowerInclusive: false, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 0.9 },
+  { priority: 7, ruleName: "一至四级会员非会员日九八折", memcardflag: null, classcode: null, memberDay: false, cardlevels: [1, 2, 3, 4], profitRateLower: 0.3, profitRateLowerInclusive: false, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 0.98 },
+  { priority: 8, ruleName: "非会员日普通毛利商品九八折", memcardflag: null, classcode: null, memberDay: false, cardlevels: [1, 2, 3, 4, 5, 6], profitRateLower: 0.15, profitRateLowerInclusive: false, profitRateUpper: 0.3, profitRateUpperInclusive: true, discountRate: 0.98 },
+  { priority: 999, ruleName: "其他情况不打折", memcardflag: null, classcode: null, memberDay: null, cardlevels: null, profitRateLower: null, profitRateLowerInclusive: null, profitRateUpper: null, profitRateUpperInclusive: null, discountRate: 1 },
+];
+
+const memberPriceDefaultTrial = { date: "2026-08-18", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "22" };
+const memberPriceRuleSamples = {
+  1: { date: "2026-08-18", cardlevel: "6", memcardflag: "1", classcode: "01011301", profitRate: "40" },
+  2: { date: "2026-08-17", cardlevel: "3", memcardflag: "0", classcode: "01011301", profitRate: "20" },
+  3: { date: "2026-08-18", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "22" },
+  4: { date: "2026-08-18", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "10" },
+  5: { date: "2026-08-17", cardlevel: "6", memcardflag: "0", classcode: "01011302", profitRate: "35" },
+  6: { date: "2026-08-17", cardlevel: "5", memcardflag: "0", classcode: "01011302", profitRate: "35" },
+  7: { date: "2026-08-17", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "35" },
+  8: { date: "2026-08-17", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "22" },
+  999: { date: "2026-08-17", cardlevel: "3", memcardflag: "0", classcode: "01011302", profitRate: "10" },
+};
+const memberPriceDiscountText = value => value === 1 ? "不打折" : `${Number((value * 10).toFixed(2))}折`;
+const memberPriceProfitText = rule => {
+  const lower = rule.profitRateLower === null ? "" : `${rule.profitRateLowerInclusive ? "≥" : ">"}${Number((rule.profitRateLower * 100).toFixed(2))}%`;
+  const upper = rule.profitRateUpper === null ? "" : `${rule.profitRateUpperInclusive ? "≤" : "<"}${Number((rule.profitRateUpper * 100).toFixed(2))}%`;
+  return [lower, upper].filter(Boolean).join(" 且 ") || "不限";
+};
+const memberPriceConditionSummary = rule => {
+  const conditions = [];
+  if (rule.memcardflag !== null) conditions.push("会员价标识为 1");
+  if (rule.classcode !== null) conditions.push(`分类为 ${rule.classcode}`);
+  if (rule.memberDay !== null) conditions.push(rule.memberDay ? "会员日" : "非会员日");
+  if (rule.cardlevels) conditions.push(`会员等级 ${rule.cardlevels.join("、")}`);
+  if (rule.profitRateLower !== null || rule.profitRateUpper !== null) conditions.push(`毛利率 ${memberPriceProfitText(rule)}`);
+  return conditions.join("；") || "无附加条件，作为最终兜底";
+};
+const isMemberPriceDay = date => memberPriceDays.includes(Number(String(date).slice(-2)));
+const memberPriceRuleMatches = (rule, values) => {
+  const profitRate = Number(values.profitRate) / 100;
+  if (rule.memcardflag !== null && Number(values.memcardflag) !== rule.memcardflag) return false;
+  if (rule.classcode !== null && values.classcode.trim() !== rule.classcode) return false;
+  if (rule.memberDay !== null && isMemberPriceDay(values.date) !== rule.memberDay) return false;
+  if (rule.cardlevels && !rule.cardlevels.includes(Number(values.cardlevel))) return false;
+  if (rule.profitRateLower !== null && (rule.profitRateLowerInclusive ? profitRate < rule.profitRateLower : profitRate <= rule.profitRateLower)) return false;
+  if (rule.profitRateUpper !== null && (rule.profitRateUpperInclusive ? profitRate > rule.profitRateUpper : profitRate >= rule.profitRateUpper)) return false;
+  return true;
+};
+
+function MemberPriceRules({ setView }) {
+  const [form, setForm] = useState(memberPriceDefaultTrial);
+  const [trial, setTrial] = useState(memberPriceDefaultTrial);
+  const [lastRefreshTime, setLastRefreshTime] = useState("2026-08-25 08:30:00");
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState("");
+  const matchedRule = useMemo(() => memberPriceRules.find(rule => memberPriceRuleMatches(rule, trial)) || memberPriceRules.at(-1), [trial]);
+  useEffect(() => {
+    if (!refreshing) return;
+    const timer = window.setTimeout(() => { setRefreshing(false); setLastRefreshTime(formatBusinessDateTime()); setToast("固定会员价规则已刷新"); }, 800);
+    return () => window.clearTimeout(timer);
+  }, [refreshing]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 1800);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  const updateForm = (key, value) => setForm(current => ({ ...current, [key]: value }));
+  const runTrial = () => { setTrial({ ...form }); setToast("规则试算完成"); };
+  const resetTrial = () => { setForm(memberPriceDefaultTrial); setTrial(memberPriceDefaultTrial); };
+  const loadRuleSample = rule => { const sample = memberPriceRuleSamples[rule.priority]; setForm(sample); setTrial(sample); setToast(`已带入优先级 ${rule.priority} 的演示条件`); };
+  return <PageFrame crumb="固定会员价规则" section="marketing" setView={setView}>
+    <section className="panel member-price-overview">
+      <div className="member-price-heading"><div><h2>固定会员价规则</h2><p>规则按优先级从小到大依次判断，命中第一条后停止。</p></div><div className="member-price-refresh"><span>规则刷新时间：{lastRefreshTime}</span><button type="button" className={`secondary erp-sync-button${refreshing ? " syncing" : ""}`} disabled={refreshing} onClick={() => setRefreshing(true)}><FiRefreshCw />{refreshing ? "刷新中..." : "刷新规则"}</button></div></div>
+      <div className="member-price-summary"><div><span>执行方式</span><strong>首条命中即停止</strong></div><div><span>固定会员日</span><strong>每月 8、18、28 日</strong></div><div><span>规则数量</span><strong>9 条</strong></div><div><span>未命中折扣</span><strong>不打折</strong></div></div>
+    </section>
+    <div className="member-price-workspace">
+      <section className="panel member-price-rules-panel">
+        <div className="member-price-panel-title"><div><h3>规则明细</h3><p>空白条件表示不限制，毛利率按百分比展示。</p></div><span>当前命中：优先级 {matchedRule.priority}</span></div>
+        <table className="coupon-table member-price-rule-table"><thead><tr><th>优先级</th><th>规则名称</th><th>匹配条件</th><th>折扣结果</th><th>操作</th></tr></thead><tbody>{memberPriceRules.map(rule => <tr key={rule.priority} className={matchedRule.priority === rule.priority ? "matched" : ""}><td><b>{rule.priority}</b></td><td>{rule.ruleName}</td><td>{memberPriceConditionSummary(rule)}</td><td><strong className={rule.discountRate === 1 ? "member-price-no-discount" : "member-price-discount"}>{memberPriceDiscountText(rule.discountRate)}</strong></td><td><button className="text-btn" type="button" onClick={() => loadRuleSample(rule)}>带入试算</button></td></tr>)}</tbody></table>
+      </section>
+      <aside className="panel member-price-simulator">
+        <div className="member-price-panel-title"><div><h3>规则试算</h3><p>输入商品与会员条件，查看首条命中结果。</p></div></div>
+        <div className="member-price-form"><label>交易日期<input type="date" value={form.date} onChange={event => updateForm("date", event.target.value)} /></label><label>会员等级<select value={form.cardlevel} onChange={event => updateForm("cardlevel", event.target.value)}>{[1, 2, 3, 4, 5, 6].map(level => <option key={level} value={level}>{level} 级会员</option>)}</select></label><label>商品会员价标识<select value={form.memcardflag} onChange={event => updateForm("memcardflag", event.target.value)}><option value="0">普通商品</option><option value="1">禁用会员价商品</option></select></label><label>商品分类编码<input value={form.classcode} maxLength={20} onChange={event => updateForm("classcode", event.target.value)} /></label><label>商品毛利率<div className="member-price-profit-input"><input type="number" min="0" max="100" step="0.01" value={form.profitRate} onChange={event => updateForm("profitRate", event.target.value)} /><span>%</span></div></label></div>
+        <div className="member-price-form-actions"><button className="primary" type="button" onClick={runTrial}>开始试算</button><button className="secondary" type="button" onClick={resetTrial}>恢复示例</button></div>
+        <div className="member-price-result"><div className="member-price-result-top"><span>试算结果</span><b>{isMemberPriceDay(trial.date) ? "会员日" : "非会员日"}</b></div><strong>{memberPriceDiscountText(matchedRule.discountRate)}</strong><h4>命中优先级 {matchedRule.priority}</h4><p>{matchedRule.ruleName}</p><small>已停止后续规则判断</small></div>
+      </aside>
+    </div>
+    {toast && <div className="erp-sync-toast" role="status"><span aria-hidden="true">✓</span>{toast}</div>}
+  </PageFrame>;
+}
+
 const erpPromotionActivities = {
   "满减满赠": [
-    { promName: "夏日健康满199减20", pstplanno: "202608100001", displayType: "满减", marketingType: "整单减金额", givetype: 6, starttime: "2026-08-01 00:00:00", endtime: "2026-08-31 23:59:59", busnos: "全部", days: "全部", weekdays: "1111111", sumamt: 199, sumqty: 0, giveprice: 20, givenum: 0, plannum: 0, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 0 }], giftItemList: [] },
+    { promName: "夏日健康满199减20", pstplanno: "202608100001", displayType: "满减", marketingType: "整单减金额", givetype: 6, starttime: "2026-08-01 00:00:00", endtime: "2026-08-31 23:59:59", busnos: "全部", days: "全部", weekdays: "1111111", sumamt: 199, sumqty: 0, giveprice: 20, givenum: 0, plannum: 0, repeatflag: 1, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 0 }], giftItemList: [] },
     { promName: "会员满99元赠维C泡腾片", pstplanno: "202608100002", displayType: "满赠", marketingType: "满减满赠", givetype: 1, starttime: "2026-08-05 00:00:00", endtime: "2026-08-20 23:59:59", busnos: "101001,101002,101006", days: "全部", weekdays: "1111111", sumamt: 99, sumqty: 0, giveprice: 0, givenum: 1, plannum: 0, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 0 }], giftItemList: [{ rowno: 1, pstid: 200001, pstqty: 1, priceDisc: 0, pstprice: 0 }] },
     { promName: "指定商品满2件赠旅行装", pstplanno: "202608100003", displayType: "满赠", marketingType: "满减满赠", givetype: 1, starttime: "2026-08-10 00:00:00", endtime: "2026-08-25 23:59:59", busnos: "101003,101005", days: "10,15,20,25", weekdays: "1111100", sumamt: 0, sumqty: 0, giveprice: 0, givenum: 1, plannum: 1, conditionItemList: [{ rowno: 1, wareid: 100215, sumamt: 0, sumqty: 2, profitrate: 0.2, resprice: 1 }, { rowno: 2, wareid: 100306, sumamt: 0, sumqty: 2, profitrate: 0.2, resprice: 1 }], giftItemList: [{ rowno: 1, pstid: 200018, pstqty: 1, priceDisc: 0, pstprice: 0 }] },
     { promName: "满299元候选赠品任选1件", pstplanno: "202608100004", displayType: "满赠", marketingType: "满减满赠", givetype: 1, starttime: "2026-08-01 00:00:00", endtime: "2026-08-31 23:59:59", busnos: "全部", days: "全部", weekdays: "1111111", sumamt: 299, sumqty: 0, giveprice: 0, givenum: 1, plannum: 0, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 0 }], giftItemList: [{ rowno: 1, pstid: 200101, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 2, pstid: 200102, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 3, pstid: 200103, pstqty: 1, priceDisc: 0, pstprice: 0 }] },
@@ -220,16 +315,25 @@ const erpPromotionActivities = {
   ],
 };
 
+const optionalPriceActivities = [
+  { promName: "家庭护理39.9元任选2件", pstplanno: "202608130001", displayType: "X元Y件（任选）", marketingType: "满额+xx元换购/买x送y/x元y件（任选）", givetype: 2, starttime: "2026-08-20 00:00:00", endtime: "2026-09-15 23:59:59", busnos: "全部", days: "全部", weekdays: "1111111", sumamt: 0, sumqty: 0, giveprice: 39.9, givenum: 2, plannum: 1, repeatflag: 0, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 1 }], giftItemList: [{ rowno: 1, pstid: 200201, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 2, pstid: 200202, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 3, pstid: 200203, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 4, pstid: 200204, pstqty: 1, priceDisc: 0, pstprice: 0 }] },
+  { promName: "出行好物100元任选3件", pstplanno: "202608130002", displayType: "X元Y件（任选）", marketingType: "满额+xx元换购/买x送y/x元y件（任选）", givetype: 2, starttime: "2026-09-01 00:00:00", endtime: "2026-09-30 23:59:59", busnos: "101001,101003,101006,101008", days: "全部", weekdays: "1111111", sumamt: 0, sumqty: 0, giveprice: 100, givenum: 3, plannum: 1, repeatflag: 0, conditionItemList: [{ rowno: 1, wareid: 0, sumamt: 0, sumqty: 0, profitrate: 0, resprice: 1 }], giftItemList: [{ rowno: 1, pstid: 200101, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 2, pstid: 200102, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 3, pstid: 200103, pstqty: 1, priceDisc: 0, pstprice: 0 }, { rowno: 4, pstid: 200301, pstqty: 1, priceDisc: 0, pstprice: 0 }] },
+];
+const fourInOneActivityType = activity => activity.displayType === "满额换购" ? "满额+XX元换购" : activity.displayType === "买X送Y" ? "买X送Y" : activity.displayType === "X元Y件（任选）" ? "X元Y件（任选）" : "满减满赠";
+const fourInOneActivities = [...erpPromotionActivities["满减满赠"], ...erpPromotionActivities["满额+XX元换购"], ...erpPromotionActivities["买X送Y"], ...optionalPriceActivities];
+
 const erpPromotionLastModifiedTimes = {
   "202608100001": "2026-08-03 10:15:20", "202608100002": "2026-08-03 15:30:12", "202608100003": "2026-08-04 09:20:18", "202608100004": "2026-08-04 11:05:36", "202608100005": "2026-08-04 13:42:09", "202608100006": "2026-08-04 15:16:44", "202608100007": "2026-08-04 16:08:27", "202608100008": "2026-08-05 08:30:42", "202608100009": "2026-08-05 10:20:16", "202608100010": "2026-08-05 14:45:00",
   "202608110001": "2026-08-03 10:05:24", "202608110002": "2026-08-04 09:32:18", "202608110003": "2026-08-05 11:18:36",
   "202608120001": "2026-08-03 14:20:10", "202608120002": "2026-08-04 10:46:28", "202608120003": "2026-08-05 16:12:50",
+  "202608130001": "2026-08-06 09:35:18", "202608130002": "2026-08-06 14:28:46",
 };
 
 const promotionModeText = activity => activity.givetype === 6 ? "整单减金额" : activity.givetype === 2 ? "条件商品价格优惠" : "赠送商品";
 const promotionRuleText = activity => {
   const mainThreshold = activity.sumamt ? `满${activity.sumamt}元` : activity.sumqty ? `满${activity.sumqty}件` : "";
   if (activity.givetype === 6) return `${mainThreshold}减${activity.giveprice}元`;
+  if (activity.displayType === "X元Y件（任选）") return `${activity.giveprice}元任选${activity.givenum}件`;
   const condition = activity.conditionItemList[0]; const gift = activity.giftItemList[0];
   if (activity.givetype === 2) return `满${activity.sumamt}元，${gift.pstprice}元换购${gift.pstqty}件`;
   if (activity.displayType === "买X送Y") return `买${condition.sumqty}件送${gift.pstqty}件`;
@@ -238,6 +342,15 @@ const promotionRuleText = activity => {
   if (activity.givenum === 88882) return `${threshold}，赠候选品中最低售价商品`;
   if (activity.giftItemList.length > 1) return `${threshold}，候选赠品任选${activity.givenum}件`;
   return `${threshold}赠${gift.pstqty}件`;
+};
+const giftSelectionText = activity => {
+  if (activity.givetype === 6) return "不涉及赠品";
+  if (activity.displayType === "X元Y件（任选）") return `候选商品任选 ${activity.givenum} 件`;
+  if (activity.givetype === 2) return "固定换购商品";
+  if (activity.givenum === 99999) return "按赠送份数任选";
+  if (activity.givenum === 88882) return "系统赠最低售价商品";
+  if (activity.giftItemList.length > 1) return `候选赠品任选 ${activity.givenum} 件`;
+  return "固定赠品";
 };
 const scopeItemText = item => Number(item.wareid) === 0 ? "全部商品" : item.wareid;
 const requirementText = value => Number(value) > 0 ? value : "不限";
@@ -356,9 +469,138 @@ function ErpPromotionList({ setView, category }) {
   return <PageFrame crumb={promotionTypeLabel(category)} section="marketing" setView={setView}><div className="filters panel activity-filter limited-discount-filter"><label className="modified-time">活动时间<ActivityDateRangePicker start={start} end={end} onChange={(nextStart, nextEnd) => { setStart(nextStart); setEnd(nextEnd); }} /></label><label>活动名称<input aria-label="活动名称" maxLength={100} value={activityName} onChange={event => setActivityName(event.target.value)} placeholder="请输入活动名称" /></label><label>活动编号<input aria-label="活动编号" maxLength={50} value={activityNo} onChange={event => setActivityNo(event.target.value)} placeholder="请输入活动编号" /></label><label>活动状态<select aria-label="活动状态" value={activityStatus} onChange={event => setActivityStatus(event.target.value)}><option value="" disabled hidden>请选择</option>{activityStatusOptions.map(status => <option key={status} value={status}>{status}</option>)}</select></label><label>门店名称<input aria-label="门店名称" maxLength={100} value={storeName} onChange={event => setStoreName(event.target.value)} placeholder="请输入门店名称" /></label>{supportsActivityType && <label>活动类型<select aria-label="活动类型" value={activityType} onChange={event => setActivityType(event.target.value)}><option value="">全部</option>{activityTypeOptions.map(type => <option key={type} value={type}>{type}</option>)}</select></label>}<div className="filter-actions"><button className="primary" onClick={runQuery}><FiSearch /> 查询</button><button className="secondary" onClick={reset}>重置</button></div></div><section className="panel coupon-table-wrap"><div className="erp-promotion-list-actions"><span className="erp-sync-time">活动同步时间：{activitySyncTime}</span><ErpActivitySyncButton onSyncComplete={setActivitySyncTime} /></div><table className="coupon-table erp-promotion-table erp-promotion-table--status"><thead><tr>{["活动名称", "活动编号", "活动时间", "活动状态", "适用门店", "最后修改时间", "操作"].map(title => <th key={title}>{title}</th>)}</tr></thead><tbody>{rows.slice(0, pageSize).map(activity => { const status = getActivityStatus(activity, now); return <tr key={activity.pstplanno}><td>{activity.promName}</td><td>{activity.pstplanno}</td><td className="activity-time-cell"><span>{activity.starttime}</span><span>~ {activity.endtime}</span></td><td><span className={statusClasses[status]}><i className="status-dot" />{status}</span></td><td>{storeScopeText(activity.busnos)}</td><td>{erpPromotionLastModifiedTimes[activity.pstplanno]}</td><td><button className="text-btn" onClick={() => setView(["erpPromotionDetail", { category, activity }])}>查看</button></td></tr>; })}</tbody></table>{rows.length === 0 ? <p className="empty-row">暂无符合条件的{category}活动</p> : <div className="pagination limited-discount-pagination"><span>共{rows.length}条</span><select aria-label="每页条数" value={pageSize} onChange={event => setPageSize(Number(event.target.value))}><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select><button aria-label="上一页" disabled><FiChevronLeft /></button><b>1</b><button aria-label="下一页" disabled><FiChevronRight /></button></div>}</section></PageFrame>;
 }
 
-function ErpPromotionDetail({ setView, category, activity }) {
+const fourInOneTypes = ["全部", "满减满赠", "满额+XX元换购", "买X送Y", "X元Y件（任选）"];
+const fourInOneDefaultQuery = { startTime: "2026-08-01T00:00:00", endTime: "2026-09-01T00:00:00", pageNo: "1", pageSize: "10" };
+const localDateTimeToBusiness = value => value ? value.replace("T", " ") : "";
+
+function FourInOneModel({ setView }) {
+  const now = useCurrentTime();
+  const [form, setForm] = useState(fourInOneDefaultQuery);
+  const [query, setQuery] = useState(fourInOneDefaultQuery);
+  const [activeType, setActiveType] = useState("全部");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState("");
+  const [queriedAt, setQueriedAt] = useState("2026-08-30 21:45:00");
+  useEffect(() => {
+    if (!loading) return;
+    const timer = window.setTimeout(() => { setLoading(false); setToast("查询成功，已返回完整活动及商品明细"); setQueriedAt(formatBusinessDateTime()); }, 650);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 1900);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  const startTime = localDateTimeToBusiness(query.startTime); const endTime = localDateTimeToBusiness(query.endTime);
+  const timeRows = fourInOneActivities.filter(activity => { const lasttime = erpPromotionLastModifiedTimes[activity.pstplanno]; return (!startTime || lasttime >= startTime) && (!endTime || lasttime < endTime); }).sort((left, right) => erpPromotionLastModifiedTimes[left.pstplanno].localeCompare(erpPromotionLastModifiedTimes[right.pstplanno]) || left.pstplanno.localeCompare(right.pstplanno));
+  const filteredRows = activeType === "全部" ? timeRows : timeRows.filter(activity => fourInOneActivityType(activity) === activeType);
+  const pageSize = Number(query.pageSize); const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize)); const currentPage = Math.min(page, totalPages);
+  const rows = filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const typeCount = type => type === "全部" ? timeRows.length : timeRows.filter(activity => fourInOneActivityType(activity) === type).length;
+  const updateForm = (key, value) => setForm(current => ({ ...current, [key]: value }));
+  const runQuery = () => { const nextPage = Math.max(1, Number(form.pageNo) || 1); setQuery({ ...form, pageNo: String(nextPage) }); setPage(nextPage); setLoading(true); };
+  const resetQuery = () => { setForm(fourInOneDefaultQuery); setQuery(fourInOneDefaultQuery); setActiveType("全部"); setPage(1); };
+  const switchType = type => { setActiveType(type); setPage(1); };
+  return <PageFrame crumb="四合一营销活动接口" section="marketing" setView={setView}>
+    <section className="panel four-in-one-overview"><div className="four-in-one-heading"><div><div className="four-in-one-title-line"><h2>四合一营销活动接口模型</h2><span>只读接口演示</span></div><p>按主活动最后修改时间查询，一次返回活动基本信息、条件商品和优惠商品明细。</p></div><div className="four-in-one-heading-actions"><div className="four-in-one-query-time">最近查询时间：{queriedAt}</div><button className="secondary" type="button" onClick={() => setView("fourInOneCalculator")}><FiActivity /> 打开试算模型</button></div></div><div className="four-in-one-capabilities"><span>开始时间包含</span><span>结束时间不包含</span><span>主活动分页</span><span>商品明细完整返回</span></div></section>
+    <section className="panel four-in-one-query"><label>开始时间（包含）<input type="datetime-local" step="1" value={form.startTime} onChange={event => updateForm("startTime", event.target.value)} /></label><label>结束时间（不包含）<input type="datetime-local" step="1" value={form.endTime} onChange={event => updateForm("endTime", event.target.value)} /></label><label>页码<input type="number" min="1" value={form.pageNo} onChange={event => updateForm("pageNo", event.target.value)} /></label><label>每页活动数<select value={form.pageSize} onChange={event => updateForm("pageSize", event.target.value)}>{[10, 20, 50, 100, 500].map(size => <option key={size} value={size}>{size} 条</option>)}</select></label><div className="four-in-one-query-actions"><button className="primary" type="button" disabled={loading} onClick={runQuery}>{loading ? <FiRefreshCw /> : <FiSearch />}{loading ? "查询中..." : "查询"}</button><button className="secondary" type="button" onClick={resetQuery}>重置</button></div></section>
+    <section className="panel four-in-one-results"><div className="four-in-one-tabs" role="tablist" aria-label="活动类型">{fourInOneTypes.map(type => <button key={type} type="button" role="tab" aria-selected={activeType === type} className={activeType === type ? "active" : ""} onClick={() => switchType(type)}><span>{type}</span><b>{typeCount(type)}</b></button>)}</div><div className="four-in-one-result-meta"><span>共 {filteredRows.length} 条主活动</span><span>排序：最后修改时间、活动编号升序</span></div><table className="coupon-table erp-promotion-table erp-promotion-table--status four-in-one-table"><thead><tr>{["活动名称", "活动编号", "活动时间", "活动状态", "适用门店", "最后修改时间", "操作"].map(title => <th key={title}>{title}</th>)}</tr></thead><tbody>{rows.map(activity => { const status = getActivityStatus(activity, now); return <tr key={activity.pstplanno}><td>{activity.promName}</td><td>{activity.pstplanno}</td><td className="activity-time-cell"><span>{activity.starttime}</span><span>~ {activity.endtime}</span></td><td><span className={statusClasses[status]}><i className="status-dot" />{status}</span></td><td>{storeScopeText(activity.busnos)}</td><td>{erpPromotionLastModifiedTimes[activity.pstplanno]}</td><td><button className="text-btn" type="button" onClick={() => setView(["fourInOneDetail", activity])}>查看响应</button></td></tr>; })}</tbody></table>{rows.length === 0 ? <p className="empty-row">当前查询窗口暂无活动数据</p> : <div className="pagination limited-discount-pagination"><span>第 {currentPage} / {totalPages} 页</span><select aria-label="每页活动数" value={pageSize} onChange={event => { const value = event.target.value; setQuery(current => ({ ...current, pageSize: value })); setForm(current => ({ ...current, pageSize: value })); setPage(1); }}><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select><button aria-label="上一页" disabled={currentPage <= 1} onClick={() => setPage(value => Math.max(1, value - 1))}><FiChevronLeft /></button><b>{currentPage}</b><button aria-label="下一页" disabled={currentPage >= totalPages} onClick={() => setPage(value => Math.min(totalPages, value + 1))}><FiChevronRight /></button></div>}</section>
+    {toast && <div className="erp-sync-toast" role="status"><span aria-hidden="true">✓</span>{toast}</div>}
+  </PageFrame>;
+}
+
+const activityTrialDate = activity => {
+  const start = new Date(`${activity.starttime.slice(0, 10)}T12:00:00`); const end = new Date(`${activity.endtime.slice(0, 10)}T12:00:00`);
+  for (let offset = 0; offset < 93; offset += 1) {
+    const date = new Date(start); date.setDate(start.getDate() + offset);
+    if (date > end) break;
+    const day = date.getDate(); const weekdayIndex = (date.getDay() + 6) % 7;
+    const dayAllowed = isAllScope(activity.days) || String(activity.days).split(",").includes(String(day));
+    const weekdayAllowed = String(activity.weekdays || "1111111")[weekdayIndex] === "1";
+    if (dayAllowed && weekdayAllowed) return dateKey(date);
+  }
+  return activity.starttime.slice(0, 10);
+};
+const buildPromotionScenario = (activity, passing = true) => {
+  const validStore = isAllScope(activity.busnos) ? "101001" : String(activity.busnos).split(",")[0];
+  const endDate = new Date(`${activity.endtime.slice(0, 10)}T12:00:00`); endDate.setDate(endDate.getDate() + 1);
+  const items = Object.fromEntries(activity.conditionItemList.map(item => [item.rowno, { amount: passing ? String(item.sumamt || 120) : "0", qty: passing ? String(item.sumqty || 3) : "0", profit: passing ? String(Math.max(10, Number(((item.profitrate || 0) + 0.05) * 100).toFixed(2))) : "0" }]));
+  return { date: passing ? activityTrialDate(activity) : dateKey(endDate), store: validStore, orderAmount: passing ? String(activity.sumamt || 300) : "0", orderQty: passing ? String(activity.sumqty || 5) : "0", items };
+};
+const calculatePromotionTrial = (activity, values) => {
+  const trialTime = `${values.date} 12:00:00`; const date = new Date(`${values.date}T12:00:00`); const weekdayIndex = (date.getDay() + 6) % 7;
+  const timePass = trialTime >= activity.starttime && trialTime <= activity.endtime;
+  const storePass = isAllScope(activity.busnos) || String(activity.busnos).split(",").includes(values.store);
+  const dayPass = isAllScope(activity.days) || String(activity.days).split(",").includes(String(date.getDate()));
+  const weekdayPass = String(activity.weekdays || "1111111")[weekdayIndex] === "1";
+  const amountPass = !Number(activity.sumamt) || Number(values.orderAmount) >= Number(activity.sumamt);
+  const quantityPass = !Number(activity.sumqty) || Number(values.orderQty) >= Number(activity.sumqty);
+  const conditionRows = activity.conditionItemList.map(item => {
+    const entered = values.items[item.rowno] || { amount: "0", qty: "0", profit: "0" };
+    const amount = Number(item.wareid) === 0 ? Number(values.orderAmount) : Number(entered.amount);
+    const qty = Number(item.wareid) === 0 ? Number(values.orderQty) : Number(entered.qty);
+    const profitRate = Number(entered.profit) / 100;
+    const pass = (!Number(item.sumamt) || amount >= Number(item.sumamt)) && (!Number(item.sumqty) || qty >= Number(item.sumqty)) && (!Number(item.profitrate) || profitRate > Number(item.profitrate));
+    const ratios = [Number(item.sumamt) ? Math.floor(amount / Number(item.sumamt)) : null, Number(item.sumqty) ? Math.floor(qty / Number(item.sumqty)) : null].filter(value => value !== null);
+    return { rowno: item.rowno, pass, ratio: ratios.length ? Math.min(...ratios) : 1 };
+  });
+  const conditionPass = activity.plannum === 1 ? conditionRows.some(row => row.pass) : conditionRows.every(row => row.pass);
+  const eligible = timePass && storePass && dayPass && weekdayPass && amountPass && quantityPass && conditionPass;
+  let repeatTimes = eligible ? 1 : 0;
+  if (eligible && activity.repeatflag === 1) {
+    const mainRatios = [Number(activity.sumamt) ? Math.floor(Number(values.orderAmount) / Number(activity.sumamt)) : null, Number(activity.sumqty) ? Math.floor(Number(values.orderQty) / Number(activity.sumqty)) : null].filter(value => value !== null);
+    const conditionRatios = conditionRows.filter(row => row.pass).map(row => row.ratio);
+    const conditionRatio = conditionRatios.length ? (activity.plannum === 1 ? Math.max(...conditionRatios) : Math.min(...conditionRatios)) : null;
+    repeatTimes = Math.max(1, Math.min(...[...mainRatios, conditionRatio].filter(value => value !== null)));
+  }
+  const firstBenefit = activity.giftItemList[0];
+  const firstBenefitName = firstBenefit ? promotionProductDetails[String(firstBenefit.pstid)]?.name || `商品${firstBenefit.pstid}` : "";
+  let outcome = "未达到活动条件，不产生优惠";
+  if (eligible && activity.givetype === 6) outcome = `整单减 ${Number((activity.giveprice * repeatTimes).toFixed(2))} 元`;
+  else if (eligible && activity.displayType === "X元Y件（任选）") outcome = `${activity.giveprice} 元任选 ${activity.givenum * repeatTimes} 件候选商品`;
+  else if (eligible && activity.givetype === 2) outcome = `${firstBenefit.pstprice} 元换购 ${firstBenefitName} × ${firstBenefit.pstqty * repeatTimes}`;
+  else if (eligible && activity.givenum === 88882) outcome = `赠送候选商品中门店最低售价商品 × ${repeatTimes}`;
+  else if (eligible && activity.givenum === 99999) outcome = `按赠送份数从候选赠品中选择，共 ${repeatTimes} 份`;
+  else if (eligible && activity.giftItemList.length > 1) outcome = `从 ${activity.giftItemList.length} 种候选赠品中任选 ${activity.givenum * repeatTimes} 件`;
+  else if (eligible && firstBenefit) outcome = `赠送 ${firstBenefitName} × ${firstBenefit.pstqty * repeatTimes}`;
+  return { eligible, repeatTimes, outcome, conditionRows, checks: [{ label: "活动时间", pass: timePass, detail: `${activity.starttime} 至 ${activity.endtime}` }, { label: "适用门店", pass: storePass, detail: storeScopeText(activity.busnos) }, { label: "参与日期", pass: dayPass && weekdayPass, detail: `${isAllScope(activity.days) ? "所有日期" : `每月${activity.days}日`}，${weekdayText(activity.weekdays)}` }, { label: "整单金额", pass: amountPass, detail: activity.sumamt ? `满 ${activity.sumamt} 元` : "不限" }, { label: "整单数量", pass: quantityPass, detail: activity.sumqty ? `满 ${activity.sumqty} 件` : "不限" }, { label: "条件商品", pass: conditionPass, detail: activity.plannum === 1 ? "任一条件满足" : "全部条件满足" }] };
+};
+
+function FourInOneCalculator({ setView }) {
+  const [activeType, setActiveType] = useState("满减满赠");
+  const initialActivity = fourInOneActivities.find(activity => fourInOneActivityType(activity) === "满减满赠");
+  const [activityNo, setActivityNo] = useState(initialActivity.pstplanno);
+  const [form, setForm] = useState(() => buildPromotionScenario(initialActivity));
+  const [trial, setTrial] = useState(() => buildPromotionScenario(initialActivity));
+  const [toast, setToast] = useState("");
+  const typeActivities = fourInOneActivities.filter(activity => fourInOneActivityType(activity) === activeType);
+  const activity = fourInOneActivities.find(item => item.pstplanno === activityNo) || typeActivities[0];
+  const result = useMemo(() => calculatePromotionTrial(activity, trial), [activity, trial]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 1800);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  const loadActivity = nextActivity => { const scenario = buildPromotionScenario(nextActivity); setActivityNo(nextActivity.pstplanno); setForm(scenario); setTrial(scenario); };
+  const switchType = type => { const nextActivity = fourInOneActivities.find(item => fourInOneActivityType(item) === type); setActiveType(type); loadActivity(nextActivity); };
+  const updateForm = (key, value) => setForm(current => ({ ...current, [key]: value }));
+  const updateItem = (rowno, key, value) => setForm(current => ({ ...current, items: { ...current.items, [rowno]: { ...current.items[rowno], [key]: value } } }));
+  const runTrial = () => { setTrial({ ...form, items: Object.fromEntries(Object.entries(form.items).map(([key, value]) => [key, { ...value }])) }); setToast("促销试算完成"); };
+  const loadScenario = passing => { const scenario = buildPromotionScenario(activity, passing); setForm(scenario); setTrial(scenario); setToast(passing ? "已带入达标示例" : "已带入未达标示例"); };
+  const storeOptions = isAllScope(activity.busnos) ? ["101001", "101002", "101003"] : String(activity.busnos).split(",");
+  return <PageFrame crumb="四合一促销试算" section="marketing" setView={setView}>
+    <section className="panel promotion-calculator-overview"><div><div className="four-in-one-title-line"><h2>四合一促销试算模型</h2><span className="calculator-scope-badge">演示口径</span></div><p>用于验证接口字段组合、活动门槛和优惠结果，不作为生产订单结算依据。</p></div><button className="secondary" type="button" onClick={() => setView("fourInOneModel")}><FiClipboard /> 返回接口模型</button></section>
+    <section className="panel promotion-calculator-selector"><div className="four-in-one-tabs calculator-type-tabs" role="tablist">{fourInOneTypes.slice(1).map(type => <button key={type} type="button" role="tab" aria-selected={activeType === type} className={activeType === type ? "active" : ""} onClick={() => switchType(type)}>{type}</button>)}</div><label>选择活动<select value={activity.pstplanno} onChange={event => loadActivity(fourInOneActivities.find(item => item.pstplanno === event.target.value))}>{typeActivities.map(item => <option key={item.pstplanno} value={item.pstplanno}>{item.promName}（{item.pstplanno}）</option>)}</select></label><div className="calculator-rule-summary"><span>当前规则</span><strong>{promotionRuleText(activity)}</strong><em>{activity.plannum === 1 ? "条件商品任一满足" : "条件商品全部满足"} · {activity.repeatflag === 1 ? "允许重复优惠" : "仅优惠一次"}</em></div></section>
+    <div className="promotion-calculator-workspace"><section className="panel promotion-calculator-input"><div className="calculator-section-title"><div><h3>订单与履约条件</h3><p>修改条件后点击“开始试算”更新右侧结果。</p></div><div><button className="text-btn" type="button" onClick={() => loadScenario(true)}>带入达标示例</button><button className="text-btn" type="button" onClick={() => loadScenario(false)}>带入未达标示例</button></div></div><div className="calculator-order-grid"><label>交易日期<input type="date" value={form.date} onChange={event => updateForm("date", event.target.value)} /></label><label>履约门店<select value={form.store} onChange={event => updateForm("store", event.target.value)}>{storeOptions.map(code => <option key={code} value={code}>{storeNamesByCode[code] || code}</option>)}<option value="999999">不适用门店（演示）</option></select></label><label>订单商品金额<div><input type="number" min="0" step="0.01" value={form.orderAmount} onChange={event => updateForm("orderAmount", event.target.value)} /><span>元</span></div></label><label>订单商品数量<div><input type="number" min="0" step="1" value={form.orderQty} onChange={event => updateForm("orderQty", event.target.value)} /><span>件</span></div></label></div><div className="calculator-section-title condition-input-title"><div><h3>条件商品输入</h3><p>“全部商品”行自动使用上方订单金额和数量。</p></div></div><table className="coupon-table calculator-condition-table"><thead><tr><th>条件商品</th><th>规则要求</th><th>本单金额</th><th>本单数量</th><th>当前毛利率</th><th>判断</th></tr></thead><tbody>{activity.conditionItemList.map(item => { const product = promotionProductDetails[String(item.wareid)] || { name: Number(item.wareid) === 0 ? "全部商品" : `商品${item.wareid}` }; const rowResult = result.conditionRows.find(row => row.rowno === item.rowno); const values = form.items[item.rowno]; const requirements = [Number(item.sumamt) ? `满${item.sumamt}元` : "", Number(item.sumqty) ? `满${item.sumqty}件` : "", Number(item.profitrate) ? `毛利率>${item.profitrate * 100}%` : ""].filter(Boolean).join("、") || "无额外门槛"; return <tr key={item.rowno}><td><strong>{product.name}</strong><span>{Number(item.wareid) === 0 ? "商品编码 0" : item.wareid}</span></td><td>{requirements}</td><td>{Number(item.wareid) === 0 ? `${form.orderAmount || 0}元（取整单）` : <input type="number" min="0" step="0.01" value={values.amount} onChange={event => updateItem(item.rowno, "amount", event.target.value)} />}</td><td>{Number(item.wareid) === 0 ? `${form.orderQty || 0}件（取整单）` : <input type="number" min="0" step="1" value={values.qty} onChange={event => updateItem(item.rowno, "qty", event.target.value)} />}</td><td><div className="calculator-profit-field"><input type="number" min="0" max="100" step="0.01" value={values.profit} onChange={event => updateItem(item.rowno, "profit", event.target.value)} /><span>%</span></div></td><td><span className={rowResult?.pass ? "calculator-pass" : "calculator-fail"}>{rowResult?.pass ? "满足" : "不满足"}</span></td></tr>; })}</tbody></table><div className="calculator-actions"><button className="primary" type="button" onClick={runTrial}><FiActivity /> 开始试算</button><button className="secondary" type="button" onClick={() => loadScenario(true)}>恢复达标示例</button></div></section><aside className="panel promotion-calculator-result"><div className={`calculator-result-hero ${result.eligible ? "eligible" : "ineligible"}`}><span>{result.eligible ? "活动条件已满足" : "活动条件未满足"}</span><strong>{result.eligible ? result.outcome : "不产生优惠"}</strong><p>{result.eligible ? `本次命中 ${result.repeatTimes} 次优惠` : "请检查未通过的条件"}</p></div><div className="calculator-checks"><h3>命中过程</h3>{result.checks.map(check => <div key={check.label}><i className={check.pass ? "pass" : "fail"}>{check.pass ? "✓" : "×"}</i><span><b>{check.label}</b><small>{check.detail}</small></span></div>)}</div><div className="calculator-benefit-preview"><h3>{activity.displayType === "X元Y件（任选）" ? "候选商品" : activity.givetype === 2 ? "换购商品" : "赠送商品"}</h3>{activity.givetype === 6 ? <p>整单优惠金额：{activity.giveprice} 元 × {Math.max(result.repeatTimes, 1)} 次</p> : <ul>{activity.giftItemList.map(item => <li key={item.rowno}><span>{promotionProductDetails[String(item.pstid)]?.name || item.pstid}</span><b>{activity.displayType === "X元Y件（任选）" ? "候选" : `${item.pstqty}件`}</b></li>)}</ul>}</div><p className="calculator-assumption">演示口径：同一条件行内金额、数量和毛利率同时满足；多条件行按活动的“任一／全部”配置判断。重复次数按可满足门槛的最小倍数计算。</p></aside></div>
+    {toast && <div className="erp-sync-toast" role="status"><span aria-hidden="true">✓</span>{toast}</div>}
+  </PageFrame>;
+}
+
+function ErpPromotionDetail({ setView, category, activity, listView }) {
   const dateScope = isAllScope(activity.days) ? "所有日期" : `每月 ${activity.days} 日`;
-  return <PageFrame crumb={<MarketingDetailCrumb type={category} setView={setView} />} section="marketing" setView={setView}><section className="panel coupon-detail activity-detail"><div className="detail-heading"><div><h3>基本信息</h3></div></div><div className="detail-grid"><Info label="活动名称" value={activity.promName} simple /><Info label="活动编号" value={activity.pstplanno} simple /><Info label="活动类型" value={activity.displayType} simple /><Info label="促销方式" value={promotionModeText(activity)} simple /><Info label="活动时间" value={`${activity.starttime} ~ ${activity.endtime}`} simple /><StoreScopeInfo busnos={activity.busnos} /><Info label="参与日期" value={dateScope} simple /><Info label="参与星期" value={weekdayText(activity.weekdays)} simple /></div></section><section className="panel promotion-rule-panel"><div className="discount-items-title"><div><h3>活动门槛与优惠</h3><p>主表门槛与条件商品要求同时满足</p></div></div><div className="promotion-rule-grid"><div><span>规则摘要</span><strong>{promotionRuleText(activity)}</strong></div><div><span>整单金额门槛</span><strong>{activity.sumamt ? `${activity.sumamt}元` : "不限"}</strong></div><div><span>整单数量门槛</span><strong>{activity.sumqty ? `${activity.sumqty}件` : "不限"}</strong></div><div><span>条件关系</span><strong>{activity.plannum === 1 ? "任一条件满足" : "全部条件满足"}</strong></div>{activity.givetype === 6 && <div className="benefit-highlight"><span>整单减金额</span><strong>{activity.giveprice}元</strong></div>}</div></section><section className="panel discount-items-panel"><div className="discount-items-title"><div><h3>条件商品明细</h3><p>商品编码为 0 表示全部商品</p></div><span>共 {activity.conditionItemList.length} 条</span></div><table className="coupon-table promotion-condition-table"><thead><tr><th>行号</th><th>条件商品</th><th>商品名称</th><th>规格信息</th><th>单品金额门槛</th><th>单品数量门槛</th><th>毛利率下限</th><th>恢复原价</th></tr></thead><tbody>{activity.conditionItemList.map(item => <tr key={item.rowno}><td>{item.rowno}</td><td>{scopeItemText(item)}</td><PromotionProductIdentityCells code={item.wareid} /><td>{requirementText(item.sumamt)}{Number(item.sumamt) > 0 && "元"}</td><td>{requirementText(item.sumqty)}{Number(item.sumqty) > 0 && "件"}</td><td>{Number(item.profitrate) > 0 ? `${item.profitrate * 100}%` : "不限"}</td><td>{item.resprice === 1 ? "是" : "否"}</td></tr>)}</tbody></table></section>{activity.givetype !== 6 && <section className="panel discount-items-panel"><div className="discount-items-title"><div><h3>{activity.givetype === 2 ? "换购商品明细" : "赠送商品明细"}</h3><p>{activity.givetype === 2 ? "展示换购商品成交价格" : "展示赠品及赠送数量"}</p></div><span>共 {activity.giftItemList.length} 个商品</span></div><table className="coupon-table promotion-gift-table"><thead><tr><th>行号</th><th>商品编码</th><th>商品名称</th><th>规格信息</th><th>数量</th><th>优惠计价</th><th>成交价格 / 折扣</th></tr></thead><tbody>{activity.giftItemList.map(item => <tr key={item.rowno}><td>{item.rowno}</td><td>{item.pstid}</td><PromotionProductIdentityCells code={item.pstid} /><td>{item.pstqty}</td><td>{item.priceDisc === 1 ? "按折扣" : "按价格"}</td><td>{item.priceDisc === 1 ? `${item.pstprice * 10}折` : `${item.pstprice}元`}</td></tr>)}</tbody></table></section>}</PageFrame>;
+  const optionalPrice = activity.displayType === "X元Y件（任选）";
+  return <PageFrame crumb={<MarketingDetailCrumb type={category} setView={setView} listView={listView} />} section="marketing" setView={setView}><section className="panel coupon-detail activity-detail"><div className="detail-heading"><div><h3>基本信息</h3></div></div><div className="detail-grid"><Info label="活动名称" value={activity.promName} simple /><Info label="活动编号" value={activity.pstplanno} simple /><Info label="活动类型" value={activity.displayType} simple /><Info label="促销方式" value={promotionModeText(activity)} simple /><Info label="活动时间" value={`${activity.starttime} ~ ${activity.endtime}`} simple /><StoreScopeInfo busnos={activity.busnos} /><Info label="参与日期" value={dateScope} simple /><Info label="参与星期" value={weekdayText(activity.weekdays)} simple /></div></section><section className="panel promotion-rule-panel"><div className="discount-items-title"><div><h3>活动门槛与优惠</h3><p>主表门槛与条件商品要求同时满足</p></div></div><div className="promotion-rule-grid"><div><span>规则摘要</span><strong>{promotionRuleText(activity)}</strong></div><div><span>整单金额门槛</span><strong>{activity.sumamt ? `${activity.sumamt}元` : "不限"}</strong></div><div><span>整单数量门槛</span><strong>{activity.sumqty ? `${activity.sumqty}件` : "不限"}</strong></div><div><span>条件关系</span><strong>{activity.plannum === 1 ? "任一条件满足" : "全部条件满足"}</strong></div><div><span>重复优惠</span><strong>{activity.repeatflag === 1 ? "允许按门槛倍数重复" : "仅优惠一次"}</strong></div><div><span>{optionalPrice ? "候选商品选择" : "赠品选择方式"}</span><strong>{giftSelectionText(activity)}</strong></div>{activity.givetype === 6 && <div className="benefit-highlight"><span>整单减金额</span><strong>{activity.giveprice}元</strong></div>}{optionalPrice && <div className="benefit-highlight"><span>任选组合价格</span><strong>{activity.giveprice}元 / {activity.givenum}件</strong></div>}</div></section><section className="panel discount-items-panel"><div className="discount-items-title"><div><h3>条件商品明细</h3><p>商品编码为 0 表示全部商品</p></div><span>共 {activity.conditionItemList.length} 条</span></div><table className="coupon-table promotion-condition-table"><thead><tr><th>行号</th><th>条件商品</th><th>商品名称</th><th>规格信息</th><th>单品金额门槛</th><th>单品数量门槛</th><th>毛利率下限</th><th>恢复原价</th></tr></thead><tbody>{activity.conditionItemList.map(item => <tr key={item.rowno}><td>{item.rowno}</td><td>{scopeItemText(item)}</td><PromotionProductIdentityCells code={item.wareid} /><td>{requirementText(item.sumamt)}{Number(item.sumamt) > 0 && "元"}</td><td>{requirementText(item.sumqty)}{Number(item.sumqty) > 0 && "件"}</td><td>{Number(item.profitrate) > 0 ? `${item.profitrate * 100}%` : "不限"}</td><td>{item.resprice === 1 ? "是" : "否"}</td></tr>)}</tbody></table></section>{activity.givetype !== 6 && <section className="panel discount-items-panel"><div className="discount-items-title"><div><h3>{optionalPrice ? "候选商品明细" : activity.givetype === 2 ? "换购商品明细" : "赠送商品明细"}</h3><p>{optionalPrice ? `从以下商品中任选 ${activity.givenum} 件，组合成交价 ${activity.giveprice} 元` : activity.givetype === 2 ? "展示换购商品成交价格" : "展示赠品及赠送数量"}</p></div><span>共 {activity.giftItemList.length} 个商品</span></div><table className="coupon-table promotion-gift-table"><thead><tr><th>行号</th><th>商品编码</th><th>商品名称</th><th>规格信息</th><th>数量</th><th>优惠计价</th><th>成交价格 / 折扣</th></tr></thead><tbody>{activity.giftItemList.map(item => <tr key={item.rowno}><td>{item.rowno}</td><td>{item.pstid}</td><PromotionProductIdentityCells code={item.pstid} /><td>{item.pstqty}</td><td>{optionalPrice ? "计入候选" : item.priceDisc === 1 ? "按折扣" : "按价格"}</td><td>{optionalPrice ? "按任选组合计价" : item.priceDisc === 1 ? `${item.pstprice * 10}折` : `${item.pstprice}元`}</td></tr>)}</tbody></table></section>}</PageFrame>;
 }
 
 const combinationProductBases = [
@@ -572,9 +814,17 @@ function AdManager({ setView }) {
 function Radio({ label, checked, onChange }) { return <label className="radio"><input type="radio" checked={checked} onChange={onChange} /><span />{label}</label>; }
 function Modal({ title, children, onClose }) { return <div className="modal-backdrop"><section className="modal"><header><b>{title}</b><button onClick={onClose}><FiX /></button></header>{children}<footer><button className="primary" onClick={onClose}>关闭</button></footer></section></div>; }
 function PageFrame({ children, crumb, section, setView, homeNav = false }) { return <div className="app-shell"><Sidebar section={section} onSection={setView} />{homeNav && <aside className="home-context"><div>首页</div><button className="context-active">控制台</button><button>系统通知 <b>99+</b></button><button>意见反馈 <b>6</b></button><button>投诉举报</button></aside>}<main className={homeNav ? "content-area with-context" : "content-area"}><Topbar crumb={crumb} /><div className="page-content">{children}</div></main></div>; }
+const initialPrototypeView = () => {
+  const preview = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("preview");
+  if (preview === "member-price") return "memberPriceRules";
+  if (preview === "full-reduction") return ["erpPromotion", "满减满赠"];
+  if (preview === "four-in-one") return "fourInOneModel";
+  if (preview === "four-in-one-calculator") return "fourInOneCalculator";
+  return "dashboard";
+};
 
 export function App() {
-  const [view, setView] = useState("dashboard");
+  const [view, setView] = useState(initialPrototypeView);
   const [combinationActivities, setCombinationActivities] = useState(combinationPriceActivities);
   const saveCombinationActivity = activity => { setCombinationActivities(current => [activity, ...current]); setView("combinationPrice"); };
   const updateCombinationActivity = activity => { setCombinationActivities(current => current.map(item => item.wareid === activity.wareid ? activity : item)); setView("combinationPrice"); };
@@ -583,6 +833,6 @@ export function App() {
     const terminatedAt = formatBusinessDateTime();
     return { ...activity, terminatedAt, terminatedBy: "admin", operationLogs: [...(activity.operationLogs || []), { operation: "TERMINATE", operator: "admin", operatedAt: terminatedAt }] };
   }));
-  const show = view === "dashboard" ? <Dashboard setView={setView} /> : view === "trade" ? <TradeModule onNavigate={setView} /> : view === "marketing" ? <MarketingGuide setView={setView} /> : view === "coupon" ? <CouponList setView={setView} /> : view === "ad" ? <AdManager setView={setView} /> : view === "combinationPrice" ? <CombinationPriceList setView={setView} activities={combinationActivities} onTerminate={terminateCombinationActivity} /> : view === "combinationPriceCreate" ? <CombinationPriceCreate setView={setView} activities={combinationActivities} onSave={saveCombinationActivity} /> : view[0] === "combinationPriceEdit" ? <CombinationPriceEdit setView={setView} activity={view[1]} activities={combinationActivities} onSave={updateCombinationActivity} /> : view[0] === "combinationPriceDetail" ? <CombinationPriceDetail setView={setView} activity={view[1]} /> : view[0] === "erpPromotion" ? <ErpPromotionList setView={setView} category={view[1]} /> : view[0] === "erpPromotionDetail" ? <ErpPromotionDetail setView={setView} category={view[1].category} activity={view[1].activity} /> : view[0] === "storePromotion" ? view[1] === "限时折扣" ? <LimitedDiscountList setView={setView} /> : <StorePromotion setView={setView} type={view[1]} /> : view[0] === "limitedDiscountDetail" ? <LimitedDiscountDetail setView={setView} activity={view[1]} /> : view[0] === "storePromotionDetail" ? <StorePromotionDetail setView={setView} type={view[1].type} activity={view[1].activity} /> : <CouponDetail setView={setView} coupon={view[1]} />;
+  const show = view === "dashboard" ? <Dashboard setView={setView} /> : view === "trade" ? <TradeModule onNavigate={setView} /> : view === "marketing" ? <MarketingGuide setView={setView} /> : view === "coupon" ? <CouponList setView={setView} /> : view === "ad" ? <AdManager setView={setView} /> : view === "memberPriceRules" ? <MemberPriceRules setView={setView} /> : view === "fourInOneModel" ? <FourInOneModel setView={setView} /> : view === "fourInOneCalculator" ? <FourInOneCalculator setView={setView} /> : view === "combinationPrice" ? <CombinationPriceList setView={setView} activities={combinationActivities} onTerminate={terminateCombinationActivity} /> : view === "combinationPriceCreate" ? <CombinationPriceCreate setView={setView} activities={combinationActivities} onSave={saveCombinationActivity} /> : view[0] === "combinationPriceEdit" ? <CombinationPriceEdit setView={setView} activity={view[1]} activities={combinationActivities} onSave={updateCombinationActivity} /> : view[0] === "combinationPriceDetail" ? <CombinationPriceDetail setView={setView} activity={view[1]} /> : view[0] === "erpPromotion" ? <ErpPromotionList setView={setView} category={view[1]} /> : view[0] === "erpPromotionDetail" ? <ErpPromotionDetail setView={setView} category={view[1].category} activity={view[1].activity} /> : view[0] === "fourInOneDetail" ? <ErpPromotionDetail setView={setView} category="四合一营销活动接口" activity={view[1]} listView="fourInOneModel" /> : view[0] === "storePromotion" ? view[1] === "限时折扣" ? <LimitedDiscountList setView={setView} /> : <StorePromotion setView={setView} type={view[1]} /> : view[0] === "limitedDiscountDetail" ? <LimitedDiscountDetail setView={setView} activity={view[1]} /> : view[0] === "storePromotionDetail" ? <StorePromotionDetail setView={setView} type={view[1].type} activity={view[1].activity} /> : <CouponDetail setView={setView} coupon={view[1]} />;
   return show;
 }
