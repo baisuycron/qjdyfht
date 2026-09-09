@@ -2,7 +2,7 @@
 
 当前千金大药房后台组合价原型中，所有后台面向用户的“组合购”文案统一使用“组合价”；商城消费者端仍使用“组合购”。
 
-组合价活动中的每个组合商品均可单独配置“组合单价”；新增选择商品时默认取最新售价，组合单价必须大于 0 且不得高于最新售价。活动级“组合价格”只读展示，并按各商品的“组合单价 × 数量”实时累加。
+组合价活动中的每个组合商品均可单独配置“组合单价”；新增选择商品时默认取最新售价，组合单价必须大于 0、最多两位小数，新增配置时不得高于最新售价；后续商品降价后，编辑保存不按最新售价重新校验组合单价上限。活动级“组合价格”只读展示，并按各商品的“组合单价 × 数量”实时累加。
 
 组合商品表格底部不显示最新售价总价、组合价格或数量合计汇总栏；活动级组合价格仅在表格上方的只读“组合价格”字段展示。
 
@@ -45,17 +45,17 @@ The combination-price query bar starts with 活动名称. ERP promotion lists re
 
 For the combination-price list, start with 活动名称; do not show 活动单号, 活动时间, 规格/单位, 场景, 组成商品数, or 厂家. Show only the stored two-state 活动状态（启用、停用）and retain the view action.
 
-The combination-price list provides a 新增组合价 action inside the lower white list/table card, above the table. It opens an interactive local-prototype form for activity title, a required activity image, a read-only activity-level 组合价格 derived from the selected products, up to nine combination products, a 500-character description, and save; it has no start or end time and does not distinguish a main product. The activity image sits between 活动名称 and 组合价格, has a red required marker, accepts only JPG/JPEG/PNG files of at most 2M, and previews the selected image; it is required on save and is displayed read-only in 查看. Clicking its upload tile opens an image-picker dialog with 我的图库 and 本地上传 tabs. The library tab offers category filtering, selectable image cards, cancel, and 使用选中的图片; the local-upload tab applies the same file-type and size checks before its selected image can be used. Adding combination products opens a large 商品选择 dialog with a two-level category cascader and product-name/code filters, 最新售价, checkbox multi-selection, current-page select all, selection preserved across pages, pagination, cancel, and confirm. The 14 px category trigger reads “请选择商品分类”; opening it reveals primary categories on the left and the hovered category's secondary choices on the right. The product-name/code control is also 14 px, and the first table heading is “商品编码”. Confirmation adds every checked product to the form, but the nine-product limit must remain enforced with an explicit over-limit message. Selected combination products are displayed as a detail table with image, code, name, 最新售价, an editable 组合单价 defaulting to 最新售价, specification, a bordered centered quantity input defaulting to 1, and delete action. Each 组合单价 must be greater than 0 and no greater than its 最新售价; the activity-level 组合价格 is recalculated as the sum of 组合单价 × 数量. Center the price, quantity, and operation headings and controls. Label the helper text “组合商品最多可添加9个”. Do not show near-expiry fields in this selected-product table; edited quantities and combination unit prices must be preserved when saving. This explicit prototype decision supersedes the earlier readonly-only boundary for combination price; do not imply that the local prototype already has a production write contract until that contract is confirmed.
+The combination-price list provides a 新增组合价 action inside the lower white list/table card, above the table. It opens an interactive local-prototype form for activity title, a required activity image, a read-only activity-level 组合价格 derived from the selected products, up to nine combination products, a 500-character description, and save; it has no start or end time and does not distinguish a main product. The activity image sits between 活动名称 and 组合价格, has a red required marker, accepts only JPG/JPEG/PNG files of at most 2M, and previews the selected image; it is required on save and is displayed read-only in 查看. Clicking its upload tile opens an image-picker dialog with 我的图库 and 本地上传 tabs. The library tab offers category filtering, selectable image cards, cancel, and 使用选中的图片; the local-upload tab applies the same file-type and size checks before its selected image can be used. Adding combination products opens a large 商品选择 dialog with a two-level category cascader and product-name/code filters, 最新售价, checkbox multi-selection, current-page select all, selection preserved across pages, pagination, cancel, and confirm. The 14 px category trigger reads “请选择商品分类”; opening it reveals primary categories on the left and the hovered category's secondary choices on the right. The product-name/code control is also 14 px, and the first table heading is “商品编码”. Confirmation adds every checked product to the form, but the nine-product limit must remain enforced with an explicit over-limit message. Selected combination products are displayed as a detail table with image, code, name, 最新售价, an editable 组合单价 defaulting to 最新售价, specification, a bordered centered quantity input defaulting to 1, and delete action. Each 组合单价 must be greater than 0 with at most two decimal places and, on initial configuration, no greater than its 最新售价; subsequent product price reductions do not trigger revalidation of that ceiling when editing and saving; the activity-level 组合价格 is recalculated as the sum of 组合单价 × 数量. Center the price, quantity, and operation headings and controls. Label the helper text “组合商品最多可添加9个”. Do not show near-expiry fields in this selected-product table; edited quantities and combination unit prices must be preserved when saving. This explicit prototype decision supersedes the earlier readonly-only boundary for combination price; do not imply that the local prototype already has a production write contract until that contract is confirmed.
 
 千金大药房后台组合价活动是千金大药房商城组合购的唯一活动来源，两端使用同一活动编号和同一套活动、商品、组合单价、数量、组合价格及状态数据；商城不得单独创建、编辑或改写组合价活动。该组合价不接入其他外部系统的组合价数据。后台配置时不区分主商品，每个组合至少包含 2 个、最多包含 9 个商品；每个商品均配置组合单价和数量，活动组合价格按“商品组合单价 × 数量”相加自动得到。单品仅在普通销售渠道下架不影响组合价；任一组成单品被停用或删除时，组合价自动变为停用且不自动恢复。仅某一门店库存不足时，只在该门店隐藏组合购，不能停用全门店活动；库存恢复且活动仍为启用时可恢复展示。
 
-商城组合购与会员价、优惠券、折扣、满减及其他任何营销活动互斥，不参与叠加、比较或择优。启用中的组合购所含商品不得再参加其他组合购或任何其他促销，停用活动不占用商品促销资格。只要订单中存在组合购，售后就只能整单退款，不能选择部分商品、部分数量或部分套数。订单商品行成交金额按实际成交商品的门店原价金额（最终履约门店售价 × 每组数量 × 购买套数）占实际成交商品原价总额的比例分摊组合成交总额；金额保留到分，尾差必须通过确定性规则归集，且所有商品行分摊金额之和必须等于组合成交总额。
+商城组合购与会员价、优惠券、折扣、满减及其他任何营销活动互斥，不参与叠加、比较或择优。同一商品允许同时参与两个或以上不同的启用组合价活动，组合价活动之间不构成商品促销冲突；与组合购以外其他促销的互斥规则保持不变，停用活动不占用商品促销资格。只要订单中存在组合购，售后就只能整单退款，不能选择部分商品、部分数量或部分套数。组合购商品行成交金额直接按“组合单价 × 每套数量 × 购买套数”计算，各组合商品行成交金额之和等于组合成交总额；不按门店原价比例重新分摊，不做分摊尾差处理。
 
 商城组合商品列表同时支持“加入购物车”和“立即购买”。每点击一次“加入购物车”必须增加 1 套完整组合；同一活动版本、同一履约门店的组合在购物车合并为同一组合行并将套数加 1，购物车角标也按组合套数加 1。加入前按增加后的总套数重新校验活动、门店、商品集合和库存；校验失败不得增加数量。组合行中的商品、数量和价格保持整组绑定，用户不能只勾选、删除或修改其中部分商品。
 
 组合购原价取用户当前选择门店或 LBS 定位门店的实时售价，结算时以最终履约门店为准；地址、定位或门店发生变化必须重新获取可售商品、库存和售价并重新计价。商品原售价在活动期间变化时，活动与固定组合价格均不调整；即使实时原价合计下降至低于组合价格，活动仍继续生效，但商城不得展示优惠、节省或原价划线，只展示固定组合价。商城不限制组合购的单笔购买套数、单用户每日套数或活动周期累计套数，但仍执行商品自身的合规与交易限制。
 
-组合购活动名称与活动单号在商城组合购域内均必须全局唯一，停用活动也参与唯一性校验。活动名称去除首尾空格后比较；活动单号由服务端生成，生成后永久不可修改或复用。新增和编辑保存时服务端同时校验名称、单号和商品促销冲突。商品只要存在于任一启用中的组合购或其他促销中即判定冲突。
+组合购活动名称不做唯一性限制，允许重名，不因启用、停用或删除状态限制名称复用。活动单号在商城组合购域内全局唯一，由服务端生成，生成后永久不可修改或复用。新增和编辑保存时服务端校验单号和商品促销冲突，不校验活动名称唯一性。商品参与其他组合价活动不判定冲突；商品参与组合购以外的其他促销时仍判定冲突。
 
 组合购只保留启用、停用两种活动状态，不再使用开始时间、结束时间、未开始、进行中或已结束。启用活动可展示和成交，操作栏提供“停用”；停用活动立即从商城隐藏并拒绝新订单，操作栏提供“启用”，点击后恢复为启用。状态切换需记录操作人和操作时间；切换前已创建但未支付的订单允许继续支付至订单自身超时，不自动取消。
 
@@ -77,7 +77,7 @@ Required fields in 新增组合价 (title, activity image, combination price, an
 
 Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.
 
-For combination-price activity actions, use only the stored 启用、停用 status. Both statuses support 查看、编辑、删除 and the corresponding 启用 or 停用 action. List actions appear in the order 查看、编辑、启用/停用、删除. Both 启用 and 停用 use the standard blue action color; 删除 remains red. Clicking 启用 or 停用 changes the status immediately, records the operator and operation time, and shows “活动已启用” or “活动已停用”. Deletion requires a confirmation and removes the activity from the local list.
+For combination-price activity actions, use only the stored 启用、停用 status. Both statuses support 查看 and the corresponding 启用 or 停用 action. Only 停用 activities may be edited or deleted; hide 编辑 and 删除 for 启用 activities. An 启用 activity must be disabled before editing or deleting. List actions appear in the order 查看、编辑、启用/停用、删除. Both 启用 and 停用 use the standard blue action color; 删除 remains red. Clicking 启用 changes the status immediately. Clicking 停用 opens a confirmation dialog; only confirmation changes the status. A completed status change records the operator and operation time, and shows “活动已启用” or “活动已停用”. Deletion requires a confirmation and removes the activity from the local list.
 
 The combination-price list shows 活动名称、组合价格、活动状态、操作 in that order. Its 组合价格 cell is the current activity's `combinationPrice`, formatted to two decimal places exactly as on the activity detail page.
 
@@ -93,3 +93,54 @@ The activity-image form shows no separate “从图库选择图片” or “更�
 The combination-price list reserves 24% for 操作 and 35% for 活动状态, placing the 操作 header and action group toward the right edge while keeping 查看、编辑、启用/停用、删除 on one line.
 
 The 适用门店 dialog provides separate 门店名称 and 门店编码 inputs with contains-style fuzzy matching. Query and reset apply to the scoped store list, reset pagination to page 1, and update the displayed result count.
+
+限时折扣的列表、筛选和详情中，将活动唯一标识统一标注为“活动单号”。
+
+限时折扣的活动单号筛选为精确查询；提交查询时忽略输入值的首尾空格。
+
+限时折扣的门店名称筛选使用可搜索的单选门店选择器：输入展示匹配门店，从结果中选择后以可清除标签显示；查询仅使用已选择的门店。
+
+限时折扣门店名称筛选的匹配结果只展示门店名称，不展示门店编码。
+
+限时折扣门店名称筛选在已有选中门店时，点击该标签应切回输入框并展开完整门店列表，当前选中门店在列表中高亮，以便重新选择。
+
+重新打开已选门店的输入框时，输入框继续显示上次所选门店；仅在从列表确认新门店后更新选择。
+
+点击限时折扣门店选择器的清空按钮时，清除门店信息并收起下拉列表。
+
+限时折扣筛选中的活动状态和优惠方式不提供“全部”选项；未选择时显示“请选择”并代表查询全部。已选择的值支持通过右侧清空按钮恢复为“请选择”。
+
+限时折扣的活动状态和优惠方式在已选状态默认显示下拉箭头；仅在鼠标移入或键盘聚焦时显示右侧清空按钮。
+
+组合价/组合购需求确认（2026-09-07）：
+- 每次进入购物车时刷新组合购活动及其商品、价格和状态数据；不采用此前建议的“旧版本必须由用户确认后重新加入”作为既定规则。仍保留加购和结算时的有效性、库存校验。
+- 只有活动停用后才允许编辑，启用中的活动不能直接编辑。此规则覆盖旧的“两种状态均可编辑”约定；重新启用的具体校验条件未由本次答复补充确认。
+- 商品降价后，编辑保存不用按最新售价重新校验组合单价上限；组合单价仍必须大于 0，最多两位小数。
+- 活动名称不做唯一性限制；活动单号的唯一、不可修改和不可复用规则保持有效。
+- 组合购与普通商品可以一起结算；只要本单包含组合购，整单不能使用优惠券。组合购商品不与其他营销叠加，包含组合购的订单仍只支持整单退款。
+- 商品自身限购约束组合购买套数：某商品限购 3 件、每套含 2 件时最多买 1 套；限购 1 件、每套含 2 件时无法购买，并提示“某商品已达购买上限”（某商品替换为实际商品名称）。商品数量与购买套数均为正整数。
+- 金额采用组合单价直接计算：每套组合价格＝Σ（组合单价 × 每套数量）；组合购商品行成交金额＝组合单价 × 每套数量 × 购买套数，组合成交总额为各组合商品行成交金额之和。组合单价最多两位小数，数量和套数为正整数；取消此前按门店原价比例分摊及尾差补分规则。
+- 门店原价仅用于商城原价展示和优惠展示判断，不参与组合成交金额计算；即使门店原价总额为 0，也不将固定组合成交金额或商品行成交金额改为 0。本次直接按组合单价计价的确认覆盖此前“原价总额为 0 时就 0 元”的分摊讨论。
+组合价活动只有停用后才允许编辑活动及组成商品或删除；启用时隐藏编辑、删除入口，表单与数据更新逻辑同时执行状态限制。启用时保留查看、停用按钮。
+点击组合价列表的停用按钮时，复用删除确认弹窗的布局和样式，标题为“停用组合价活动”，提示为“确认停用‘活动名称’吗？”（活动名称使用实际值），按钮为取消、停用，右上角可关闭；不显示删除不可恢复文案或次级说明。确认后才切换为停用并记录操作人、操作时间和显示“活动已停用”；取消或关闭不改变活动状态。
+同一商品允许同时参加多个不同组合价活动，后台商品选择与保存均不得因已参与其他组合价而拦截。商城商品详情的优惠组合展示需支持该商品关联的多个可售组合购活动，每个活动独立使用自己的商品集合、组合单价、数量、组合价格和状态；不能只取一个活动，也不能将不同活动混为一个组合。具体展示布局需基于商城现有页面进一步调整。
+组合价活动停用确认弹窗的主按钮文案使用“确认”，点击后执行停用；标题及确认提示仍使用“停用”。
+组合价活动启用也必须弹窗确认：标题为启用组合价活动，提示确认启用具体活动，按钮为取消和确认；只有点击确认才切换状态，取消或关闭不改变状态。
+组合价列表在“活动名称”和“组合价格”之间增加“组合商品种类”列，按活动 itemList 中不同商品标识的数量实时统计，不累加每种商品的配置件数；新增或编辑商品后同步更新。本规则覆盖此前列表不展示组成商品数的约定。
+组合价列表的活动状态筛选去掉“全部”选项，仅提供“启用”和“停用”；初始及重置后显示“请选择”，空值代表不限制活动状态。
+组合价的活动状态查询复用限时折扣的可清空下拉组件：选中后，鼠标移入或键盘聚焦时右侧显示清空按钮；点击清空恢复“请选择”并收起下拉列表，查询时空值表示不限制状态。
+组合价活动图片建议尺寸 700×700，文件最大 10M，支持 GIF、PNG、JPG/JPEG（兼容 jepg 扩展名）、BMP，最多 1 张；表单及本地上传提示统一为“建议尺寸 700×700，图片文件最大10M；支持 gif、png、jpg、jepg、bmp；最多 1 张。”，上传格式与大小校验同步执行。覆盖旧的 JPG/PNG、2M 限制，建议尺寸不作为强制校验。
+
+组合购商城搜索需求确认（2026-09-09）：
+- 搜索可通过活动名称或任一组成商品名称命中对应组合活动。
+- 商品名称采用全模糊匹配，匹配字段为“商品名称”。活动名称的具体匹配方式尚未确认。
+- 同一活动不做去重；按用户确认口径“不用去重，该展示多少就展示多少”，不得擅自增加按活动单号去重的规则。
+- 同一商品关联多个组合时，返回该商品关联的所有符合当前门店可售条件的组合，每个活动独立展示。
+- 组合独立检索和判断可售性。普通渠道下架的组成商品，其名称仍可用于命中可售组合；活动停用、删除或当前门店不足一套库存时不展示。
+- 默认排序采用“组合优先”。价格/销量排序下是否仍组合优先、跨分页规则及商品编码是否参与搜索尚未确认。
+
+满减满赠入口需求确认（2026-09-09）：现有满减满赠列表统一容纳截图四类促销：满减满赠、满额+XX元换购、买X件+XX元换购、买X送Y，提供对应类型筛选、分页和完整详情，保留原有满减示例及其他独立入口。加价换购按 givetype=1 且赠品 priceDisc=0、pstprice>0 识别，以主表 sumamt 或条件商品 sumqty 区分金额与数量门槛；givetype=2 不用于表示加价换购。
+
+促销条件商品口径确认（2026-09-09）：wareid=0 表示所有商品，即每个商品分别判断是否满足条件；不得将该条件行的金额、数量直接替换为整单合计。主活动自身的整单金额、数量门槛仍按主表配置判断。试算模型以单个商品输入演示该条件，并明确说明适用所有商品、逐商品判断。
+
+满减满赠范围确认：第二件折扣等 priceDisc=1 活动不纳入现有满减满赠入口；列表及活动类型筛选的数据源排除赠品明细含 priceDisc=1 的活动。
