@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   FiActivity,
+  FiArrowRightCircle,
   FiBarChart2,
   FiBox,
   FiCalendar,
@@ -29,6 +30,8 @@ import {
   FiX,
 } from "react-icons/fi";
 import { TradeModule } from "./TradeModule.jsx";
+import { RealPromotionCalculator, RealPromotionDetail, RealPromotionManager } from "./RealPromotionModule.jsx";
+import { MallPromotionCalculator } from "./MallPromotionCalculator.jsx";
 
 const navItems = [
   ["首页", FiHome, "dashboard"],
@@ -39,7 +42,108 @@ const navItems = [
   ["营销", FiBarChart2, "marketing"],
   ["统计", FiActivity],
   ["设置", FiSettings],
-  ["系统", FiSliders],
+  ["系统", FiArrowRightCircle, "roleManagement", "system"],
+];
+
+const platformRoleRows = [
+  ["测试权限l", "2026-07-29 09:22"],
+  ["叶叶子测试", "2026-07-24 14:18"],
+  ["肖婷婷测试按钮权限-勿动-系统通知", "2026-07-24 09:13"],
+  ["测试222", "2026-07-22 13:44"],
+  ["测试权限角色", "2026-07-22 13:41"],
+  ["xt运营角色", "2026-07-16 11:22"],
+  ["测试角色权限1", "2026-07-06 14:08"],
+  ["平台质量负责人", "2026-07-03 15:01"],
+  ["不允许操作售后", "2026-07-02 17:37"],
+  ["首页1", "2026-06-29 11:22"],
+  ["测试123", "2026-06-27 16:11"],
+  ["测试12311", "2026-06-27 15:58"],
+  ["测试123", "2026-06-27 15:57"],
+  ["商品和交易", "2026-06-27 14:23"],
+  ["运营平台管理员", "2026-06-25 10:05"],
+  ["平台财务角色", "2026-06-24 17:36"],
+  ["供应链协同", "2026-06-23 13:12"],
+  ["内容运营角色", "2026-06-22 11:09"],
+  ["营销活动配置", "2026-06-21 16:28"],
+  ["数据查看角色", "2026-06-20 09:47"],
+];
+
+const storeRoleRows = [
+  ["门店店长", "2026-07-26 10:18"],
+  ["门店收银员", "2026-07-25 15:32"],
+  ["门店药师", "2026-07-23 09:46"],
+  ["门店运营负责人", "2026-07-18 14:08"],
+  ["门店售后专员", "2026-07-11 11:20"],
+];
+
+const rolePermissionGroups = [
+  { id: "home", name: "首页", children: [
+    { id: "dashboard", name: "控制台", actions: ["查看列表"] },
+    { id: "notice", name: "系统通知", actions: ["查看列表", "查看详情", "标记已读", "批量标记已读", "导出查询结果"] },
+    { id: "feedback", name: "意见反馈", actions: ["查看列表", "查看详情", "处理", "批量处理"] },
+    { id: "complaint", name: "投诉举报", actions: ["查看列表", "查看详情", "受理", "处理"] },
+  ]},
+  { id: "product", name: "商品", children: [
+    { id: "product-manage", name: "商品管理", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "product-category", name: "商品分类", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "product-brand", name: "品牌管理", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "product-manufacturer", name: "厂家管理", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "product-tag", name: "商品标签", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "product-audit", name: "商品审核", actions: ["查看列表", "查看详情", "审核"] },
+  ]},
+  { id: "trade", name: "交易", children: [
+    { id: "order-manage", name: "订单管理", actions: ["查看列表", "查看详情", "导出查询结果", "关闭订单"] },
+    { id: "after-sale", name: "售后管理", actions: ["查看列表", "查看详情", "审核", "处理"] },
+    { id: "refund-manage", name: "退款管理", actions: ["查看列表", "查看详情", "审核退款"] },
+    { id: "delivery-manage", name: "配送管理", actions: ["查看列表", "查看详情", "分配配送", "取消配送"] },
+    { id: "trade-settings", name: "交易设置", actions: ["查看", "编辑"] },
+  ]},
+  { id: "store", name: "门店", children: [
+    { id: "store-manage", name: "门店管理", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "store-stock", name: "库存管理", actions: ["查看列表", "查看详情", "调整库存"] },
+    { id: "store-settings", name: "门店设置", actions: ["查看列表", "查看详情", "编辑"] },
+    { id: "store-staff", name: "门店员工", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "store-products", name: "门店商品", actions: ["查看列表", "查看详情", "上架", "下架"] },
+    { id: "store-delivery", name: "门店配送", actions: ["查看列表", "查看详情", "编辑"] },
+    { id: "store-business", name: "门店营业设置", actions: ["查看", "编辑"] },
+  ]},
+  { id: "member", name: "会员", children: [
+    { id: "member-manage", name: "会员管理", actions: ["查看列表", "查看详情", "导出查询结果"] },
+  ]},
+  { id: "marketing", name: "营销", children: [
+    { id: "coupon-manage", name: "优惠券", actions: ["查看列表", "查看详情", "领取记录", "编辑", "批量开启会员领取", "批量关闭会员领取"] },
+    { id: "lottery-manage", name: "抽奖", actions: ["查看列表", "查看详情", "查看数据", "新增", "编辑", "删除", "结束"] },
+    { id: "popup-manage", name: "弹窗广告", actions: ["查看列表", "编辑"] },
+  ]},
+  { id: "statistics", name: "统计", children: [
+    { id: "trade-statistics", name: "交易统计", actions: ["查看交易统计总览", "查看交易统计报表"] },
+  ]},
+  { id: "settings", name: "设置", children: [
+    { id: "system-params", name: "参数配置", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "permission-log", name: "权限日志", actions: ["查看列表", "查看详情", "导出查询结果"] },
+    { id: "system-dict", name: "系统字典", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "message-template", name: "消息模板", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "operation-record", name: "操作记录", actions: ["查看列表", "查看详情", "导出查询结果"] },
+    { id: "data-dict", name: "数据字典", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "file-manage", name: "文件管理", actions: ["查看列表", "查看详情", "上传", "删除"] },
+    { id: "scheduled-task", name: "定时任务", actions: ["查看列表", "查看详情", "新增", "编辑", "启用", "停用"] },
+    { id: "system-notice", name: "系统公告", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "login-log", name: "登录日志", actions: ["查看列表", "查看详情", "导出查询结果"] },
+  ]},
+  { id: "system", name: "系统", children: [
+    { id: "user-manage", name: "用户管理", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "role-manage", name: "角色管理", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "article-manage", name: "文章管理", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "topic-manage", name: "商城专题", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "footer-navigation", name: "底部导航", actions: ["查看列表", "查看详情", "新增", "编辑"] },
+    { id: "image-library", name: "图片库", actions: ["查看列表", "查看详情", "上传", "删除"] },
+    { id: "article-category", name: "文章分类", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "prohibited-words", name: "违禁词库", actions: ["查看列表", "查看详情", "新增", "编辑", "删除"] },
+    { id: "operation-log", name: "操作日志", actions: ["查看列表", "查看详情", "导出查询结果"] },
+    { id: "supervision-log", name: "监管日志", actions: ["查看列表", "查看详情", "导出查询结果"] },
+    { id: "inspection-log", name: "巡检日志", actions: ["查看列表", "查看详情", "处理"] },
+    { id: "system-config", name: "系统配置", actions: ["查看列表", "查看详情", "编辑"] },
+  ]},
 ];
 
 const coupons = [
@@ -56,15 +160,16 @@ const coupons = [
 ];
 
 function Sidebar({ section, onSection }) {
-  return <aside className="sidebar">
+  return <aside className={section === "system" ? "sidebar system-sidebar" : "sidebar"}>
     <div className="brand"><strong>千金健康商城</strong><span>运营平台</span></div>
-    <nav>{navItems.map(([label, Icon, target]) => <button key={label} className={section === target ? "nav-item active" : "nav-item"} onClick={() => target && onSection(target)}><Icon /><span>{label}</span></button>)}</nav>
+    <nav>{navItems.map(([label, Icon, target, sectionKey]) => <button key={label} className={section === (sectionKey || target) ? "nav-item active" : "nav-item"} onClick={() => target && onSection(target)}><Icon /><span>{label}</span></button>)}</nav>
     <button className="collapse"><FiMenu /></button>
   </aside>;
 }
 
-function Topbar({ crumb }) {
-  return <><header className="topbar"><span>{crumb}</span><div className="account"><button><FiClipboard /> 导出记录</button><span className="account-name"><FiUser /> admin⌄</span></div></header></>;
+function Topbar({ crumb, system = false }) {
+  const [accountOpen, setAccountOpen] = useState(false);
+  return <header className={system ? "topbar system-topbar" : "topbar"}><span>{crumb}</span><div className="account"><button className="export-records" type="button"><FiClipboard /> 导出记录</button><button className="account-name" type="button" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}><FiUser /> <span>admin</span><FiChevronDown />{accountOpen && <span className="account-menu">账号设置</span>}</button></div></header>;
 }
 
 const promotionTypeLabel = type => type === "满额+XX元换购" ? "满额换购" : type;
@@ -89,7 +194,11 @@ function TrendChart({ range }) {
 }
 
 function MarketingGuide({ setView }) {
-  return <PageFrame crumb="营销" section="marketing" setView={setView}><section className="marketing-guide"><div className="guide-section"><h2>平台促销</h2><div className="guide-cards platform-promotion-cards"><button onClick={() => setView("coupon")}><span className="guide-icon red"><FiTag /></span><div><b>优惠券</b><p>向客户发放优惠劵</p></div></button><button onClick={() => setView("ad")}><span className="guide-icon orange"><FiGift /></span><div><b>弹窗广告</b><p>设置首页弹窗广告</p></div></button><button onClick={() => setView("memberPriceRules")}><span className="guide-icon blue"><FiPercent /></span><div><b>固定会员价规则</b><p>查看固定折扣并进行规则试算</p></div></button><button onClick={() => setView(["erpPromotion", "满减满赠"])}><span className="guide-icon purple"><FiShoppingBag /></span><div><b>满减满赠</b><p>满减满赠、满额换购、买件换购与买X送Y</p></div></button><button onClick={() => setView(["erpPromotion", "满额+XX元换购"])}><span className="guide-icon amber"><FiGift /></span><div><b>满额换购</b><p>达到金额门槛后加价换购商品</p></div></button><button onClick={() => setView(["erpPromotion", "买X送Y"])}><span className="guide-icon green"><FiPackage /></span><div><b>买X送Y</b><p>购买指定数量后赠送商品</p></div></button><button onClick={() => setView(["storePromotion", "限时折扣"])}><span className="guide-icon teal"><FiClock /></span><div><b>限时折扣</b><p>查看门店商品的限时优惠</p></div></button><button onClick={() => setView("combinationPrice")}><span className="guide-icon indigo"><FiBox /></span><div><b>组合价</b><p>组合商品活动</p></div></button></div></div><div className="guide-section interface-model-guide"><h2>接口演示</h2><div className="guide-cards"><button onClick={() => setView("fourInOneModel")}><span className="guide-icon slate"><FiClipboard /></span><div><b>四合一营销活动接口</b><p>按最后修改时间查询四类活动响应</p></div></button><button onClick={() => setView("fourInOneCalculator")}><span className="guide-icon cyan"><FiActivity /></span><div><b>四合一促销试算</b><p>输入订单条件，演示优惠命中过程</p></div></button></div></div></section></PageFrame>;
+  return <PageFrame crumb="营销" section="marketing" setView={setView}><section className="marketing-guide">
+    <div className="guide-section"><h2>平台促销</h2><div className="guide-cards platform-promotion-cards"><button onClick={() => setView("coupon")}><span className="guide-icon red"><FiTag /></span><div><b>优惠券</b><p>向客户发放优惠劵</p></div></button><button onClick={() => setView("ad")}><span className="guide-icon orange"><FiGift /></span><div><b>弹窗广告</b><p>设置首页弹窗广告</p></div></button><button onClick={() => setView("memberPriceRules")}><span className="guide-icon blue"><FiPercent /></span><div><b>固定会员价规则</b><p>查看固定折扣并进行规则试算</p></div></button><button onClick={() => setView(["erpPromotion", "满减满赠"])}><span className="guide-icon purple"><FiShoppingBag /></span><div><b>满减满赠</b><p>满减满赠、满额换购、买件换购与买X送Y</p></div></button><button onClick={() => setView(["erpPromotion", "满额+XX元换购"])}><span className="guide-icon amber"><FiGift /></span><div><b>满额换购</b><p>达到金额门槛后加价换购商品</p></div></button><button onClick={() => setView(["erpPromotion", "买X送Y"])}><span className="guide-icon green"><FiPackage /></span><div><b>买X送Y</b><p>购买指定数量后赠送商品</p></div></button><button onClick={() => setView(["storePromotion", "限时折扣"])}><span className="guide-icon teal"><FiClock /></span><div><b>限时折扣</b><p>查看门店商品的限时优惠</p></div></button><button onClick={() => setView("combinationPrice")}><span className="guide-icon indigo"><FiBox /></span><div><b>组合价</b><p>组合商品活动</p></div></button></div></div>
+    <div className="guide-section real-data-guide"><h2>真实活动数据</h2><div className="guide-cards"><button onClick={() => setView("realPromotionManager")}><span className="guide-icon slate"><FiClipboard /></span><div><b>活动管理（只读）</b><p>查询数据库活动及条件、优惠商品明细</p></div></button><button onClick={() => setView("realPromotionCalculator")}><span className="guide-icon cyan"><FiActivity /></span><div><b>独立促销试算</b><p>选择真实活动并验证门槛命中过程</p></div></button><button onClick={() => setView("mallPromotionCalculator")}><span className="guide-icon green"><FiShoppingBag /></span><div><b>小程序商城商品试算</b><p>模拟选品加购并反向匹配真实促销</p></div></button></div></div>
+    <div className="guide-section interface-model-guide"><h2>接口演示</h2><div className="guide-cards"><button onClick={() => setView("fourInOneModel")}><span className="guide-icon slate"><FiClipboard /></span><div><b>四合一营销活动接口</b><p>按最后修改时间查询四类活动响应</p></div></button><button onClick={() => setView("fourInOneCalculator")}><span className="guide-icon cyan"><FiActivity /></span><div><b>四合一促销试算</b><p>输入订单条件，演示优惠命中过程</p></div></button></div></div>
+  </section></PageFrame>;
 }
 
 const storeActivities = {
@@ -867,27 +976,151 @@ function AdManager({ setView }) {
 
 function Radio({ label, checked, onChange }) { return <label className="radio"><input type="radio" checked={checked} onChange={onChange} /><span />{label}</label>; }
 function Modal({ title, children, onClose }) { return <div className="modal-backdrop"><section className="modal"><header><b>{title}</b><button onClick={onClose}><FiX /></button></header>{children}<footer><button className="primary" onClick={onClose}>关闭</button></footer></section></div>; }
-function PageFrame({ children, crumb, section, setView, homeNav = false }) { return <div className="app-shell"><Sidebar section={section} onSection={setView} />{homeNav && <aside className="home-context"><div>首页</div><button className="context-active">控制台</button><button>系统通知 <b>99+</b></button><button>意见反馈 <b>6</b></button><button>投诉举报</button></aside>}<main className={homeNav ? "content-area with-context" : "content-area"}><Topbar crumb={crumb} /><div className="page-content">{children}</div></main></div>; }
+function SystemContext({ onNavigate }) {
+  const items = ["用户管理", "角色管理", "商城专题", "底部导航", "图片库", "文章分类", "文章管理", "违禁词库", "操作日志", "监管日志", "巡检日志"];
+  return <aside className="system-context" aria-label="系统菜单"><div className="system-context-title">系统</div><nav>{items.map(item => <button key={item} type="button" className={item === "角色管理" ? "context-active" : ""} onClick={() => item === "角色管理" && onNavigate("roleManagement")}>{item}</button>)}</nav></aside>;
+}
+
+const getPermissionKeys = groups => groups.flatMap(group => [group.id, ...group.children.flatMap(child => [child.id, ...child.actions.map(action => `${child.id}:${action}`)])]);
+const permissionKeys = getPermissionKeys(rolePermissionGroups);
+
+function RoleForm({ setView, roleType, mode = "create", role, onSave }) {
+  const roleLabel = roleType === "platform" ? "运营平台角色" : "门店角色";
+  const [roleName, setRoleName] = useState(role?.name || "");
+  const [selected, setSelected] = useState(() => new Set(role?.permissions || []));
+  const [collapsed, setCollapsed] = useState({});
+  const [nameError, setNameError] = useState(false);
+
+  const setSelection = keys => setSelected(current => {
+    const next = new Set(current);
+    const shouldSelect = keys.some(key => !next.has(key));
+    keys.forEach(key => shouldSelect ? next.add(key) : next.delete(key));
+    return next;
+  });
+  const isSelected = key => selected.has(key);
+  const groupKeys = group => [group.id, ...group.children.flatMap(child => [child.id, ...child.actions.map(action => `${child.id}:${action}`)])];
+  const childKeys = child => [child.id, ...child.actions.map(action => `${child.id}:${action}`)];
+  const submit = event => {
+    event.preventDefault();
+    const trimmedName = roleName.trim();
+    if (!trimmedName) {
+      setNameError(true);
+      return;
+    }
+    onSave({ roleType, name: trimmedName, permissions: [...selected], editingId: mode === "edit" ? role?.id : undefined });
+  };
+
+  return <PageFrame crumb={<><button type="button" className="role-breadcrumb-link" onClick={() => setView("roleManagement")}>角色管理</button><span className="role-breadcrumb-separator"> › </span><span>{mode === "edit" ? `编辑${roleLabel}` : `新增${roleLabel}`}</span></>} section="system" setView={setView} systemNav>
+    <form className="role-form-card" onSubmit={submit}>
+      <div className="role-form-row role-name-row">
+        <label htmlFor="role-form-name"><span className="required-mark">*</span>角色名称</label>
+        <div className="role-form-control">
+          <div className="role-name-input-wrap"><input id="role-form-name" maxLength={20} value={roleName} aria-invalid={nameError} onChange={event => { setRoleName(event.target.value); setNameError(false); }} placeholder="1-20个字符，中文、英文字符和数字组成" /><span className="role-name-counter">{roleName.length}/20</span></div>
+          <div className="role-field-error">{nameError && <span>请输入角色名称</span>}</div>
+        </div>
+      </div>
+      <div className="role-form-row role-permission-row">
+        <label><span>权限设置</span></label>
+        <div className="role-form-control">
+          <section className="role-permission-panel" aria-label="角色权限设置">
+            <div className="permission-toolbar">
+              <label className="permission-checkbox-label"><input type="checkbox" checked={permissionKeys.every(key => selected.has(key))} onChange={() => setSelected(current => current.size === permissionKeys.length ? new Set() : new Set(permissionKeys))} /><span>权限设置（全选）</span></label>
+              <button type="button" className="collapse-all-button" onClick={() => setCollapsed(Object.fromEntries(rolePermissionGroups.map(group => [group.id, true])))}>全部收起</button>
+            </div>
+            <div className="role-permission-scroll">
+              {rolePermissionGroups.map(group => <section className="permission-group" key={group.id}>
+                <div className="permission-group-header">
+                  <i className="permission-accent" />
+                  <label className="permission-checkbox-label permission-group-label"><input type="checkbox" checked={groupKeys(group).every(key => selected.has(key))} onChange={() => setSelection(groupKeys(group))} /><span>{group.name}</span></label>
+                  <button type="button" className="permission-collapse-button" aria-label={`${collapsed[group.id] ? "展开" : "收起"}${group.name}`} onClick={() => setCollapsed(current => ({ ...current, [group.id]: !current[group.id] }))}><FiChevronDown className={collapsed[group.id] ? "is-collapsed" : ""} /></button>
+                </div>
+                {!collapsed[group.id] && <div className="permission-group-body">{group.children.map(child => <div className="permission-module" key={child.id}>
+                  <label className="permission-checkbox-label permission-module-label"><input type="checkbox" checked={childKeys(child).every(key => selected.has(key))} onChange={() => setSelection(childKeys(child))} /><span>{child.name}</span></label>
+                  <div className="permission-actions">{child.actions.map(action => { const key = `${child.id}:${action}`; return <label className="permission-action" key={key}><input type="checkbox" checked={isSelected(key)} onChange={() => setSelection([key])} /><span>{action}</span></label>; })}</div>
+                </div>)}</div>}
+              </section>)}
+            </div>
+          </section>
+        </div>
+      </div>
+      <div className="role-form-actions"><button type="submit" className="primary">保存</button><button type="button" className="secondary" onClick={() => setView("roleManagement")}>取消</button></div>
+    </form>
+  </PageFrame>;
+}
+
+function RoleManagement({ setView, platformRoles, storeRoles, onPlatformRolesChange, onStoreRolesChange }) {
+  const [roleType, setRoleType] = useState("platform");
+  const [dialog, setDialog] = useState(null);
+  const [toast, setToast] = useState("");
+  const roles = roleType === "platform" ? platformRoles : storeRoles;
+
+  const showToast = message => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 1800);
+  };
+  const openCreate = () => setView(["roleForm", { roleType, mode: "create" }]);
+  const openEdit = role => setView(["roleForm", { roleType, mode: "edit", role }]);
+  const openDelete = role => setDialog({ type: "delete", role });
+  const closeDialog = () => setDialog(null);
+  const updateRoles = updater => roleType === "platform" ? onPlatformRolesChange(updater) : onStoreRolesChange(updater);
+  const submitDelete = () => {
+    updateRoles(current => current.filter(role => role.id !== dialog.role.id));
+    showToast("角色删除成功");
+    closeDialog();
+  };
+
+  return <PageFrame crumb="角色管理" section="system" setView={setView} systemNav>
+    <section className="role-tabs-panel" role="tablist" aria-label="角色类型">
+      <button type="button" role="tab" aria-selected={roleType === "platform"} className={roleType === "platform" ? "active" : ""} onClick={() => setRoleType("platform")}>运营平台角色</button>
+      <button type="button" role="tab" aria-selected={roleType === "store"} className={roleType === "store" ? "active" : ""} onClick={() => setRoleType("store")}>门店角色</button>
+    </section>
+    <section className="panel role-list-panel">
+      <div className="role-list-toolbar"><button className="primary role-add-button" type="button" onClick={openCreate}><FiPlus /> 添加角色</button></div>
+      <div className="role-table-wrap"><table className="role-table"><colgroup><col /><col /><col className="role-operation-col" /></colgroup><thead><tr><th>角色</th><th>添加时间</th><th>操作</th></tr></thead><tbody>{roles.map(role => <tr key={role.id}><td>{role.name}</td><td>{role.createdAt}</td><td><div className="role-actions"><button type="button" className="role-edit" onClick={() => openEdit(role)}>编辑</button><button type="button" className="role-delete" onClick={() => openDelete(role)}>删除</button></div></td></tr>)}</tbody></table></div>
+    </section>
+    {dialog && <div className="role-dialog-backdrop" role="presentation" onMouseDown={event => event.target === event.currentTarget && closeDialog()}><section className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-dialog-title">
+      <header><h2 id="role-dialog-title">删除角色</h2><button type="button" aria-label="关闭" onClick={closeDialog}><FiX /></button></header>
+      <div className="role-delete-copy">确认删除角色“{dialog.role.name}”吗？</div><footer><button type="button" className="secondary" onClick={closeDialog}>取消</button><button type="button" className="role-dialog-danger" onClick={submitDelete}>删除</button></footer>
+    </section></div>}
+    {toast && <div className="role-toast" role="status">{toast}</div>}
+  </PageFrame>;
+}
+
+function PageFrame({ children, crumb, section, setView, homeNav = false, systemNav = false }) { return <div className={systemNav ? "app-shell system-shell" : "app-shell"}><Sidebar section={section} onSection={setView} />{homeNav && <aside className="home-context"><div>首页</div><button className="context-active">控制台</button><button>系统通知 <b>99+</b></button><button>意见反馈 <b>6</b></button><button>投诉举报</button></aside>}{systemNav && <SystemContext onNavigate={setView} />}<main className={homeNav ? "content-area with-context" : systemNav ? "content-area with-system-context" : "content-area"}><Topbar crumb={crumb} system={systemNav} /><div className="page-content">{children}</div></main></div>; }
 const initialPrototypeView = () => {
   const preview = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("preview");
+  if (preview === "role-management") return "roleManagement";
   if (preview === "member-price") return "memberPriceRules";
   if (preview === "full-reduction") return ["erpPromotion", "满减满赠"];
   if (preview === "four-in-one") return "fourInOneModel";
   if (preview === "four-in-one-calculator") return "fourInOneCalculator";
+  if (preview === "real-promotion") return "realPromotionManager";
+  if (preview === "real-promotion-calculator") return "realPromotionCalculator";
+  if (preview === "mall-promotion-calculator") return "mallPromotionCalculator";
   return "dashboard";
 };
 
 export function App() {
   const [view, setView] = useState(initialPrototypeView);
   const [combinationActivities, setCombinationActivities] = useState(combinationPriceActivities);
+  const [platformRoles, setPlatformRoles] = useState(() => platformRoleRows.map(([name, createdAt], index) => ({ id: `platform-${index}`, name, createdAt, permissions: [] })));
+  const [storeRoles, setStoreRoles] = useState(() => storeRoleRows.map(([name, createdAt], index) => ({ id: `store-${index}`, name, createdAt, permissions: [] })));
   const saveCombinationActivity = activity => { setCombinationActivities(current => [activity, ...current]); setView("combinationPrice"); };
   const updateCombinationActivity = activity => { setCombinationActivities(current => current.map(item => item.wareid === activity.wareid && !item.enabled ? activity : item)); setView("combinationPrice"); };
   const deleteCombinationActivity = wareid => setCombinationActivities(current => current.filter(activity => activity.wareid !== wareid || activity.enabled));
+  const saveRole = ({ roleType, name, permissions, editingId }) => {
+    const createdAt = formatBusinessDateTime().slice(0, 16);
+    const setRoles = roleType === "platform" ? setPlatformRoles : setStoreRoles;
+    setRoles(current => editingId
+      ? current.map(role => role.id === editingId ? { ...role, name, permissions } : role)
+      : [{ id: `${roleType}-${Date.now()}`, name, createdAt, permissions }, ...current]);
+    setView("roleManagement");
+  };
   const toggleCombinationActivityStatus = (wareid, enabled) => setCombinationActivities(current => current.map(activity => {
     if (activity.wareid !== wareid) return activity;
     const operatedAt = formatBusinessDateTime();
     return { ...activity, enabled, statusChangedAt: operatedAt, statusChangedBy: "admin", operationLogs: [...(activity.operationLogs || []), { operation: enabled ? "ENABLE" : "DISABLE", operator: "admin", operatedAt }] };
   }));
-  const show = view === "dashboard" ? <Dashboard setView={setView} /> : view === "trade" ? <TradeModule onNavigate={setView} /> : view === "marketing" ? <MarketingGuide setView={setView} /> : view === "coupon" ? <CouponList setView={setView} /> : view === "ad" ? <AdManager setView={setView} /> : view === "memberPriceRules" ? <MemberPriceRules setView={setView} /> : view === "fourInOneModel" ? <FourInOneModel setView={setView} /> : view === "fourInOneCalculator" ? <FourInOneCalculator setView={setView} /> : view === "combinationPrice" ? <CombinationPriceList setView={setView} activities={combinationActivities} onToggleStatus={toggleCombinationActivityStatus} onDelete={deleteCombinationActivity} /> : view === "combinationPriceCreate" ? <CombinationPriceCreate setView={setView} activities={combinationActivities} onSave={saveCombinationActivity} /> : view[0] === "combinationPriceEdit" ? <CombinationPriceEdit setView={setView} activity={view[1]} activities={combinationActivities} onSave={updateCombinationActivity} /> : view[0] === "combinationPriceDetail" ? <CombinationPriceDetail setView={setView} activity={view[1]} /> : view[0] === "erpPromotion" ? <ErpPromotionList setView={setView} category={view[1]} /> : view[0] === "erpPromotionDetail" ? <ErpPromotionDetail setView={setView} category={view[1].category} activity={view[1].activity} /> : view[0] === "fourInOneDetail" ? <ErpPromotionDetail setView={setView} category="四合一营销活动接口" activity={view[1]} listView="fourInOneModel" /> : view[0] === "storePromotion" ? view[1] === "限时折扣" ? <LimitedDiscountList setView={setView} /> : <StorePromotion setView={setView} type={view[1]} /> : view[0] === "limitedDiscountDetail" ? <LimitedDiscountDetail setView={setView} activity={view[1]} /> : view[0] === "storePromotionDetail" ? <StorePromotionDetail setView={setView} type={view[1].type} activity={view[1].activity} /> : <CouponDetail setView={setView} coupon={view[1]} />;
+  const show = view === "dashboard" ? <Dashboard setView={setView} /> : view === "trade" ? <TradeModule onNavigate={setView} /> : view === "marketing" ? <MarketingGuide setView={setView} /> : view === "roleManagement" ? <RoleManagement setView={setView} platformRoles={platformRoles} storeRoles={storeRoles} onPlatformRolesChange={setPlatformRoles} onStoreRolesChange={setStoreRoles} /> : view === "coupon" ? <CouponList setView={setView} /> : view === "ad" ? <AdManager setView={setView} /> : view === "memberPriceRules" ? <MemberPriceRules setView={setView} /> : view === "realPromotionManager" ? <RealPromotionManager Frame={PageFrame} setView={setView} /> : view === "realPromotionCalculator" ? <RealPromotionCalculator Frame={PageFrame} setView={setView} /> : view === "mallPromotionCalculator" ? <MallPromotionCalculator Frame={PageFrame} setView={setView} /> : view === "fourInOneModel" ? <FourInOneModel setView={setView} /> : view === "fourInOneCalculator" ? <FourInOneCalculator setView={setView} /> : view === "combinationPrice" ? <CombinationPriceList setView={setView} activities={combinationActivities} onToggleStatus={toggleCombinationActivityStatus} onDelete={deleteCombinationActivity} /> : view === "combinationPriceCreate" ? <CombinationPriceCreate setView={setView} activities={combinationActivities} onSave={saveCombinationActivity} /> : view[0] === "roleForm" ? <RoleForm setView={setView} roleType={view[1].roleType} mode={view[1].mode} role={view[1].role} onSave={saveRole} /> : view[0] === "combinationPriceEdit" ? <CombinationPriceEdit setView={setView} activity={view[1]} activities={combinationActivities} onSave={updateCombinationActivity} /> : view[0] === "combinationPriceDetail" ? <CombinationPriceDetail setView={setView} activity={view[1]} /> : view[0] === "realPromotionDetail" ? <RealPromotionDetail Frame={PageFrame} setView={setView} activity={view[1]} /> : view[0] === "erpPromotion" ? <ErpPromotionList setView={setView} category={view[1]} /> : view[0] === "erpPromotionDetail" ? <ErpPromotionDetail setView={setView} category={view[1].category} activity={view[1].activity} /> : view[0] === "fourInOneDetail" ? <ErpPromotionDetail setView={setView} category="四合一营销活动接口" activity={view[1]} listView="fourInOneModel" /> : view[0] === "storePromotion" ? view[1] === "限时折扣" ? <LimitedDiscountList setView={setView} /> : <StorePromotion setView={setView} type={view[1]} /> : view[0] === "limitedDiscountDetail" ? <LimitedDiscountDetail setView={setView} activity={view[1]} /> : view[0] === "storePromotionDetail" ? <StorePromotionDetail setView={setView} type={view[1].type} activity={view[1].activity} /> : <CouponDetail setView={setView} coupon={view[1]} />;
   return show;
 }

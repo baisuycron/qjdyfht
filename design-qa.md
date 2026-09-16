@@ -57,6 +57,63 @@ final result: passed
 
 ---
 
+# 角色权限新增页 Design QA
+
+**Comparison target**
+
+- Source visual truth: the two user-attached role-permission references `C:\Users\THUNDE~1\AppData\Local\Temp\codex-clipboard-3d4faafb-515c-4915-b6ed-cdd0768c76d6.png` and `C:\Users\THUNDE~1\AppData\Local\Temp\codex-clipboard-f0f774ee-4c45-4b2f-b694-bb280ab125cf.png`.
+- Implementation: `http://localhost:4173/?preview=role-management`, entered through 系统 > 角色管理 > 添加角色, rendered from `src/App.jsx` and `src/role-management.css`.
+- Desktop comparison viewport: 2562 × 1347, matching the supplied source image dimensions. States compared were the initial permission-tree position and the scrolled 会员/营销/统计 position.
+
+**Evidence and findings**
+
+- Matched the two-level system navigation, breadcrumb, required 角色名称 input, 20-character counter, fixed permission panel, native permission checkboxes, blue group markers, collapse affordances, action chips, scrollbar density, and 保存/取消 footer.
+- Verified the initial state shows 首页 and the beginning of 商品; the permission tree scrolls through additional system modules and reaches 会员、营销、统计 at the reference-like mid-scroll position.
+- Verified 全选, 分组/模块/动作 checkbox selection, 全部收起, required-name validation with a red border and message, cancel navigation, create save, and edit reuse of the same form component.
+- No actionable P0/P1/P2 visual or interaction issue remains.
+- [P3] The production icon font is represented with the project's existing React icon set; icon meaning and placement are preserved.
+
+**Implementation checklist**
+
+- [x] Reproduce the role list shell and system navigation entry.
+- [x] Replace the add-role modal with the screenshot-matched full-page permission form.
+- [x] Implement scrollable grouped permissions, selection behavior, collapse behavior, validation, create save, and edit reuse.
+- [x] Compare top and scrolled permission states at the supplied desktop dimensions.
+- [x] Run the production build, Sites packaging tests, and browser console check.
+
+final result: passed
+
+---
+
+# 小程序商城商品试算 Design QA
+
+**Comparison target**
+
+- Source visual reference: the separate read-only `D:\Thunderobot\GitHub\qjdyfsc` 千金商城 project, especially `qa/cart-promotion-groups-implementation.png` and `qa-implementation-home-final.png`.
+- Implementation: `http://localhost:4173/?preview=mall-promotion-calculator`, rendered from `src/MallPromotionCalculator.jsx` and `src/mall.css`.
+- State: product list, one-item cart, promotion threshold gap, reached promotion list, cart sheet, benefit sheet, and demo checkout notice.
+
+**Evidence and findings**
+
+- The implementation reuses the reference project's green mobile-mall hierarchy, two-column product cards, circular add-to-cart control, quantity stepper, bottom cart total, and bottom-sheet pattern without modifying that project.
+- Product selection, quantity updates, cart opening, activity matching, threshold-gap updates, reached-activity benefit details, and the demo checkout notice were verified in the in-app browser.
+- No actionable P0/P1/P2 visual or interaction issue remains in the core trial flow.
+- Product names, specifications, prices, and the uniform 20% margin are explicitly labelled as demo data because the three promotion tables do not supply those fields.
+- Multiple reached promotions are not summed into a payable price. The page shows product total and promotion configuration separately until stacking and preference rules are confirmed.
+
+**Implementation checklist**
+
+- [x] Keep the 千金商城 project read-only.
+- [x] Provide activity and ordinary product selection in the standalone trial page.
+- [x] Reverse-match database snapshot activities from the selected cart.
+- [x] Show reached activities, benefit rows, and near-threshold gaps.
+- [x] Verify the cart and benefit bottom-sheet interactions.
+- [x] Run the production build and Sites packaging tests.
+
+final result: passed
+
+---
+
 # 适用门店弹窗 Design QA
 
 **Comparison target**
@@ -268,5 +325,46 @@ final result: passed
 - [x] Leave the optional description label unmarked.
 - [x] Convert non-chronological start/end validation to the shared upper-center Toast treatment.
 - [x] Verify the final page state and browser console.
+
+final result: passed
+
+---
+
+# 小程序商城指定活动试算 Design QA
+
+**Comparison target**
+
+- Source visual truth: `C:\Users\THUNDE~1\AppData\Local\Temp\codex-clipboard-db65dc96-31fd-4db3-b180-55923ad2487c.png`, showing the backend independent-trial activity-type tabs, activity search, and selected-activity control.
+- Implementation evidence: in-app Browser capture at `http://localhost:4173/?preview=mall-promotion-calculator`; the current Codex browser session contains the rendered source-comparison state because this browser API does not expose a filesystem screenshot path.
+- Source pixels: 1154 × 774 at supplied density. Implementation viewport: 750 × 880 CSS px at device scale factor 1; comparison focused on the activity-selector region rather than the different surrounding page width.
+- State: 买X件+XX元换购 selected, activity number search `260205`, activity `2026年买赠，3:1（2602050001011）` selected, one condition product increased to three units, and the current activity reaching its threshold.
+
+**Evidence and comparison**
+
+- Full-view comparison: both source and implementation use a horizontally scrollable activity-type row with per-type counts, followed by activity search and an explicit activity selector. The mobile implementation compresses the same hierarchy vertically inside the existing phone shell.
+- Focused comparison: verified active-tab styling, horizontal overflow, search filtering, activity selection, selected-activity banner update, condition/non-condition product refresh, threshold-gap update, and reached-benefit result.
+- Fonts and typography: retained the existing 千金商城 system-font hierarchy and compact 10–12 px selector labels appropriate to the mobile shell.
+- Spacing and layout rhythm: the selector occupies 126 px between the activity banner and product grid; controls remain fully visible and the product list keeps an independent scroll area.
+- Colors and visual tokens: active selection uses the existing teal mall token while inactive tabs and counts use restrained gray values.
+- Image quality and asset fidelity: product cards continue using the project's existing medicine image assets with contained cropping; the selector introduces no replacement raster or drawn assets.
+- Copy and content: labels use the database play classifications, actual activity names, activity numbers, 条件商品, 非条件商品, 已达标权益, and 未达标差额.
+
+**Findings**
+
+- No actionable P0/P1/P2 visual or interaction issue remains in the selected-activity trial flow.
+- [P3] The native activity select can contain hundreds of records for large classifications; the preceding search reduces the practical list, but a production implementation may eventually benefit from a virtualized searchable selector.
+
+**Comparison history**
+
+- Initial [P1] finding: the玩法 row was generated only from activities already matching the selected date and store, so six database玩法 disappeared completely rather than remaining selectable. Fixed by sourcing the tabs and counts from the complete 1,382-activity snapshot and applying date/store only during the selected activity's trial calculation. Post-fix browser evidence exposes all ten玩法, including the far-right “无优惠商品结果 24”, and retains horizontal tab navigation.
+
+**Implementation checklist**
+
+- [x] Replace product-category tabs with play-classification tabs and counts.
+- [x] Add real-activity search and explicit activity selection.
+- [x] Rebuild the catalog from the selected activity's condition and benefit data plus demo non-condition products.
+- [x] Restrict calculation to the selected activity.
+- [x] Verify activity switching, search, selection, threshold gap, and reached-benefit states in the in-app Browser.
+- [x] Run the production build and Sites packaging tests.
 
 final result: passed
